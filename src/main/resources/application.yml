@@ -1,0 +1,85 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: mall3
+  messages:
+    basename: i18n/Messages
+  main:
+    allow-bean-definition-overriding: true
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    client-type: lettuce
+    lettuce:
+      pool:
+        enabled: true
+      cluster:
+        refresh:
+          adaptive: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
+  jackson:
+    default-property-inclusion: non_null
+  cache:
+    type: redis
+    redis:
+      cache-null-values: false
+  task:
+    scheduling:
+      pool:
+        size: 5
+
+info:
+  app:
+    name: ${spring.application.name}
+    description: Bik Web3 mall
+  build:
+    artifact: '@project.artifactId@'
+    version: '@project.version@'
+
+server:
+  port: 8281
+  tomcat:
+    threads:
+      max: 200
+  error:
+    include-stacktrace: always
+
+management:
+  server:
+    port: 9291
+  endpoint:
+    health:
+      enabled: true
+      show-details: always
+    env:
+      enabled: true
+    info:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: env,health,info
+
+logging:
+  level:
+    root: INFO
+    com.bik.web3: DEBUG
+    org.springframework: INFO
+
+mall3:
+  web3:
+    address: https://eth-goerli.g.alchemy.com/v2/EnRJnzi90StNwxeH4LcjFRKWCLZpc2wi

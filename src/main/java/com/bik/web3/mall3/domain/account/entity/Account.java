@@ -1,6 +1,6 @@
 package com.bik.web3.mall3.domain.account.entity;
 
-import com.bik.web3.mall3.bean.account.dto.AccountDTO;
+import com.bik.web3.mall3.bean.account.AccountDTO;
 import com.bik.web3.mall3.bean.vcoin.dto.VcoinRechargeOrderDTO;
 import com.bik.web3.mall3.common.utils.ObjectUtils;
 import lombok.Data;

@@ -1,7 +1,7 @@
 package com.bik.web3.mall3.api;
 
 import com.bik.web3.mall3.auth.context.AuthContext;
-import com.bik.web3.mall3.bean.account.dto.AccountDTO;
+import com.bik.web3.mall3.bean.account.AccountDTO;
 import com.bik.web3.mall3.common.annotation.ApiDefinition;
 import com.bik.web3.mall3.common.dto.BaseResponse;
 import com.bik.web3.mall3.domain.account.AccountService;

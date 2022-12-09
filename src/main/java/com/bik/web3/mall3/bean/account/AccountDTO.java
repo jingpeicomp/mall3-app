@@ -1,4 +1,4 @@
-package com.bik.web3.mall3.bean.account.dto;
+package com.bik.web3.mall3.bean.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

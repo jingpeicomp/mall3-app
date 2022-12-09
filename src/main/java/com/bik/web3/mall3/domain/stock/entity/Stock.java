@@ -23,23 +23,35 @@ public class Stock implements Serializable {
     private Long id;
 
     /**
+     * 用户ID
+     */
+    @Column(name = "user_id", nullable = false, updatable = false, columnDefinition = "bigint not null comment '用户ID'")
+    private Long userId;
+
+    /**
      * 品牌名
      */
+    @Column(name = "brand", nullable = false, updatable = false, columnDefinition = "varchar(32) not null comment '品牌名'")
     private String brand;
 
     /**
      * 周期类型
      */
+    @Column(name = "period_type", nullable = false, updatable = false, columnDefinition = "tinyint not null comment '周期类型'")
+    @Convert(converter = PeriodType.EnumConvert.class)
     private PeriodType periodType;
 
     /**
      * 设备类型
      */
+    @Column(name = "device_type", nullable = false, updatable = false, columnDefinition = "tinyint not null comment '设备类型'")
+    @Convert(converter = DeviceType.EnumConvert.class)
     private DeviceType deviceType;
 
     /**
      * 库存数目
      */
+    @Column(name = "count", columnDefinition = "int not null comment '库存数目'")
     private Integer count;
 
     /**

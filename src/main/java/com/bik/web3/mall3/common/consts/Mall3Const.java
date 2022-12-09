@@ -7,6 +7,11 @@ package com.bik.web3.mall3.common.consts;
  * @date 2022-12-08
  */
 public interface Mall3Const {
+    /**
+     * 平台品牌名称
+     */
+    String BRAND_PLATFORM = "白牌";
+
     interface RechargeOrderState {
         /**
          * 充值单创建成功

@@ -1,4 +1,4 @@
-package com.bik.web3.mall3.common.utils;
+package com.bik.web3.mall3.common.utils.generator;
 
 import java.math.BigInteger;
 import java.util.UUID;

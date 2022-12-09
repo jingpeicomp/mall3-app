@@ -6,7 +6,7 @@ import com.bik.web3.mall3.bean.user.request.VerifyWeb3AddressRequest;
 import com.bik.web3.mall3.common.exception.Mall3Exception;
 import com.bik.web3.mall3.common.exception.ResultCodes;
 import com.bik.web3.mall3.common.utils.BCrypt;
-import com.bik.web3.mall3.common.utils.UuidGenerator;
+import com.bik.web3.mall3.common.utils.generator.UuidGenerator;
 import com.bik.web3.mall3.web3.Web3Operations;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;

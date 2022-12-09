@@ -52,6 +52,11 @@ public class VcoinRechargeOrderDTO implements Serializable {
     private BigDecimal paidAmount;
 
     /**
+     * 交易GAS（手续费）
+     */
+    private BigDecimal gasAmount;
+
+    /**
      * 以太坊交易ID
      */
     private String txId;

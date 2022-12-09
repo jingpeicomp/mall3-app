@@ -41,6 +41,18 @@ public class User implements Serializable {
     private String password;
 
     /**
+     * 品牌名
+     */
+    @Column(name = "brand", columnDefinition = "varchar(32) comment '品牌名'")
+    private String brand;
+
+    /**
+     * 品牌logo
+     */
+    @Column(name = "brand_icon", columnDefinition = "varchar(128) comment '品牌logo'")
+    private String brandIcon;
+
+    /**
      * 版本号
      */
     @Version

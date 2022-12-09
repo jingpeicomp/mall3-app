@@ -28,7 +28,7 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import javax.persistence.criteria.Predicate;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +44,7 @@ import java.util.concurrent.Executor;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@SuppressWarnings("BigDecimalMethodWithoutRoundingCalled")
 public class VcoinRechargeService {
 
     /**
@@ -135,16 +136,18 @@ public class VcoinRechargeService {
     /**
      * 充值成功
      *
-     * @param id 充值单ID
+     * @param id        充值单ID
+     * @param gasAmount gas费用
      */
     @Transactional(timeout = 10, rollbackFor = Exception.class)
-    public void paid(Long id) {
+    public void paid(Long id, BigDecimal gasAmount) {
         VcoinRechargeOrder order = repository.findById(id)
                 .orElse(null);
         if (null != order) {
             order.setPaidAmount(order.getPayAmount());
             order.setState(Mall3Const.RechargeOrderState.PAID);
             order.setPayTime(LocalDateTime.now());
+            order.setGasAmount(gasAmount);
             repository.save(order);
             accountService.recharge(order.toValueObject());
         }
@@ -174,12 +177,14 @@ public class VcoinRechargeService {
     private void checkPayInfo(VcoinRechargeOrderDTO dto) {
         EthTransaction ethTransaction = web3Operations.getTransaction(dto.getTxId());
         Optional<Transaction> optional = ethTransaction.getTransaction();
+        BigInteger gasAmountInWei = BigInteger.valueOf(0);
         if (optional.isPresent()) {
             Transaction transaction = optional.get();
             String fromPubAddr = transaction.getFrom().toLowerCase();
             String toPubAddr = transaction.getTo().toLowerCase();
             BigInteger amountInWei = transaction.getValue();
             BigInteger payAmountInWei = dto.getPayAmount().multiply(ETH2WEI).toBigInteger();
+            gasAmountInWei = transaction.getGas().multiply(transaction.getGasPrice());
             if (amountInWei.compareTo(payAmountInWei) < 0) {
                 //web交易中的金额少于应付金额
                 log.error("Transaction amount is invalid {} {} {} {}", amountInWei, payAmountInWei,
@@ -200,10 +205,11 @@ public class VcoinRechargeService {
         log.info("Transaction receipt is {} {}", dto.getTxId(), ObjectUtils.toJson(result));
         if (null == result) {
             //没有查询到结果，需要延时
-            taskScheduler.scheduleWithFixedDelay(() -> checkPayInfo(dto), Duration.ofSeconds(10));
+            log.warn("Cannot get transaction receipt, wait 10s for next operation");
+            taskScheduler.schedule(() -> checkPayInfo(dto), Instant.ofEpochMilli(System.currentTimeMillis() + 10000));
         } else if (result.isStatusOK()) {
             log.info("VcoinRechargeOrder pay success {}", dto.getId());
-            paid(dto.getId());
+            paid(dto.getId(), BigDecimal.valueOf(gasAmountInWei.longValue()).divide(ETH2WEI));
         } else {
             log.error("VcoinRechargeOrder pay error {}", dto.getId());
             paidError(dto.getId());

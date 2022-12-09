@@ -53,6 +53,12 @@ public class VcoinRechargeOrder implements Serializable {
     private BigDecimal paidAmount;
 
     /**
+     * 交易GAS（手续费）
+     */
+    @Column(name = "gas_amount", columnDefinition = "decimal(20,10) comment '交易GAS（手续费）'")
+    private BigDecimal gasAmount;
+
+    /**
      * 以太坊交易ID
      */
     @Column(name = "tx_id", columnDefinition = "varchar(100) comment '以太坊交易ID'")

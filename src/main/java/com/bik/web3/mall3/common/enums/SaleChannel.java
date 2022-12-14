@@ -17,12 +17,12 @@ public enum SaleChannel {
     /**
      * 应用包
      */
-    Month(1, "web2"),
+    Web2(1, "web2"),
 
     /**
      * 应用
      */
-    YEAR(2, "web3");
+    Web3(2, "web3");
 
     /**
      * 枚举对应的值，主要用于数据库和前端，提高效率

@@ -24,12 +24,12 @@ public class RequestLogProperties {
     /**
      * 是否记录请求参数；默认：true;
      */
-    private boolean needParam = false;
+    private boolean needParam = true;
 
     /**
      * 是否记录响应结果；默认：false;
      */
-    private boolean needResult = false;
+    private boolean needResult = true;
 
     /**
      * 最大返回结果长度，超过此长度记录时会被截取

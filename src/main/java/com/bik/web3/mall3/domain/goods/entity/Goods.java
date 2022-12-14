@@ -1,9 +1,11 @@
-package com.bik.web3.mall3.domain.goods;
+package com.bik.web3.mall3.domain.goods.entity;
 
+import com.bik.web3.mall3.bean.goods.dto.GoodsDTO;
 import com.bik.web3.mall3.common.enums.CurrencyType;
 import com.bik.web3.mall3.common.enums.DeviceType;
 import com.bik.web3.mall3.common.enums.PeriodType;
 import com.bik.web3.mall3.common.enums.SaleChannel;
+import com.bik.web3.mall3.common.utils.ObjectUtils;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -48,6 +50,12 @@ public class Goods implements Serializable {
      */
     @Column(name = "brand", nullable = false, updatable = false, columnDefinition = "varchar(32) not null comment '品牌名'")
     private String brand;
+
+    /**
+     * 商品图片
+     */
+    @Column(name = "image", columnDefinition = "varchar(128) not null comment '商品图片'")
+    private String image;
 
     /**
      * 周期类型
@@ -95,4 +103,8 @@ public class Goods implements Serializable {
     @Version
     @Column(name = "version", columnDefinition = "bigint comment '版本号'")
     private Long version;
+
+    public GoodsDTO toValueObject() {
+        return ObjectUtils.copy(this, new GoodsDTO());
+    }
 }

@@ -1,4 +1,4 @@
-package com.bik.web3.mall3.domain.goods;
+package com.bik.web3.mall3.domain.goods.entity;
 
 import lombok.Data;
 
@@ -27,4 +27,10 @@ public class GoodsItem implements Serializable {
      */
     @Column(name = "goods_id", nullable = false, updatable = false, columnDefinition = "bigint not null comment '商品ID'")
     private Long goodsId;
+
+    /**
+     * 用户ID
+     */
+    @Column(name = "user_id", nullable = false, updatable = false, columnDefinition = "bigint not null comment '用户ID'")
+    private Long userId;
 }

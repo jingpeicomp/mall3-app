@@ -148,4 +148,14 @@ public interface ResultCodes {
      * 签名信息错误
      */
     String INVALID_SIGNATURE = "E000027";
+
+    /**
+     * 库存不足
+     */
+    String NOT_ENOUGH_STOCK = "E000028";
+
+    /**
+     * 请设置品牌
+     */
+    String NOT_BRAND = "E000029";
 }

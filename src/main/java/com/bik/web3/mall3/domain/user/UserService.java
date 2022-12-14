@@ -14,7 +14,6 @@ import com.bik.web3.mall3.web3.Web3Operations;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +40,7 @@ public class UserService {
      * @param id 用户ID
      * @return 用户详情
      */
-    @Cacheable(key = "#id")
+//    @Cacheable(key = "#id")
     @Transactional(timeout = 10, rollbackFor = Exception.class, readOnly = true)
     public UserDTO queryById(Long id) {
         return userRepository.findById(id)
@@ -73,7 +72,7 @@ public class UserService {
      * @param request 用户Web钱包地址校验请求
      * @return 用户信息
      */
-    @Transactional(timeout = 10, rollbackFor = Exception.class)
+    @Transactional(timeout = 30, rollbackFor = Exception.class)
     public UserDTO verifyWeb3Addr(VerifyWeb3AddressRequest request) {
         String nonce = getNonce(request.getPubAddress());
         boolean isValid = web3Operations.validate(request.getSignature(), nonce, request.getPubAddress());
@@ -127,15 +126,28 @@ public class UserService {
      */
     @Transactional(timeout = 10, rollbackFor = Exception.class)
     public UserDTO bindUserInfo(BindUserInfoRequest request) {
-        if (StringUtils.isNotBlank(request.getPassword())) {
+        String password = request.getPassword();
+        if (StringUtils.isNotBlank(password)) {
             if (!request.getPassword().equals(request.getRePassword())) {
                 throw new Mall3Exception(ResultCodes.PASSWORD_NOT_EQUAL);
             }
+            password = BCrypt.hashpw(password, BCrypt.gensalt());
         }
 
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new Mall3Exception(ResultCodes.USER_NOT_EXIST));
+
+        if (StringUtils.isNotBlank(request.getName())) {
+            User sameNameUser = userRepository.findByName(request.getName()).orElse(null);
+            if (null != sameNameUser && !sameNameUser.getId().equals(user.getId())) {
+                throw new Mall3Exception(ResultCodes.USER_NAME_EXIST);
+            }
+        }
         ObjectUtils.copy(request, user, true);
+        if (StringUtils.isNotBlank(password)) {
+            user.setPassword(password);
+        }
+
         return userRepository.save(user).toValueObject();
     }
 
@@ -145,16 +157,24 @@ public class UserService {
      * @param request 请求
      * @return 绑定成功后用户信息
      */
-    @Transactional(timeout = 10, rollbackFor = Exception.class)
+    @Transactional(timeout = 1000, rollbackFor = Exception.class)
     public UserDTO bindWeb3Address(BindWeb3AddressRequest request) {
         String nonce = getNonce(request.getPubAddress());
         boolean isValid = web3Operations.validate(request.getSignature(), nonce, request.getPubAddress());
         if (!isValid) {
             throw new Mall3Exception(ResultCodes.INVALID_SIGNATURE);
         }
+
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new Mall3Exception(ResultCodes.USER_NOT_EXIST));
-        user.setPubWeb3Addr(request.getUserPubWeb3Addr());
-        return userRepository.save(user).toValueObject();
+        User sameWeb3AddressUser = userRepository.findByPubWeb3Addr(request.getPubAddress()).orElse(null);
+        if (null != sameWeb3AddressUser && !sameWeb3AddressUser.getId().equals(user.getId())) {
+            throw new Mall3Exception(ResultCodes.WEB3_ADDRESS_EXIST);
+        }
+
+        user.setPubWeb3Addr(request.getPubAddress());
+        userRepository.saveAndFlush(user);
+        clearNonce(request.getPubAddress());
+        return user.toValueObject();
     }
 }

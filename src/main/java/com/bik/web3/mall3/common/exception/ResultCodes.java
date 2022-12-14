@@ -163,4 +163,14 @@ public interface ResultCodes {
      * 两次密码不同
      */
     String PASSWORD_NOT_EQUAL = "E000030";
+
+    /**
+     * 用户名已经存在
+     */
+    String USER_NAME_EXIST = "E000031";
+
+    /**
+     * Web3地址已经绑定到其他用户
+     */
+    String WEB3_ADDRESS_EXIST = "E000032";
 }

@@ -16,7 +16,7 @@ import java.io.Serializable;
 @Data
 @Entity
 @Table(name = "t_user", indexes = {@Index(name = "uk_name", columnList = "name", unique = true),
-        @Index(name = "uk_web3_addr", columnList = "pubWeb3Addr", unique = true)})
+        @Index(name = "uk_web3_addr", columnList = "pub_web3_addr", unique = true)})
 public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

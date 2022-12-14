@@ -158,4 +158,9 @@ public interface ResultCodes {
      * 请设置品牌
      */
     String NOT_BRAND = "E000029";
+
+    /**
+     * 两次密码不同
+     */
+    String PASSWORD_NOT_EQUAL = "E000030";
 }

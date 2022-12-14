@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -36,7 +35,6 @@ public class AccountController {
      */
     @ApiDefinition(method = RequestMethod.GET, path = "/me")
     @ApiOperation(value = "获取当前用户账户信息", notes = "获取当前用户账户信息")
-    @ResponseBody
     public BaseResponse<AccountDTO> query() {
         return BaseResponse.success(accountService.query(AuthContext.me().getLoginUser().getUserId()));
     }

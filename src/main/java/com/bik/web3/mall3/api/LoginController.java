@@ -3,7 +3,6 @@ package com.bik.web3.mall3.api;
 import com.bik.web3.mall3.auth.context.AuthContext;
 import com.bik.web3.mall3.auth.login.LoginService;
 import com.bik.web3.mall3.auth.login.dto.LoginResponse;
-import com.bik.web3.mall3.auth.login.dto.LoginUser;
 import com.bik.web3.mall3.auth.login.dto.PwdLoginRequest;
 import com.bik.web3.mall3.auth.login.dto.Web3LoginRequest;
 import com.bik.web3.mall3.bean.user.dto.UserDTO;
@@ -41,7 +40,6 @@ public class LoginController {
      */
     @ApiDefinition(method = RequestMethod.POST, path = "/login/pwd", requiredLogin = false)
     @ApiOperation(value = "用户名密码登陆", notes = "用户名密码登陆")
-    @ResponseBody
     public BaseResponse<LoginResponse> loginByPwd(@ApiParam("用户名密码登陆请求") @RequestBody @Valid PwdLoginRequest request) {
         return BaseResponse.success(loginService.loginByPwd(request));
     }
@@ -53,16 +51,13 @@ public class LoginController {
      * @return 登陆结果
      */
     @ApiDefinition(method = RequestMethod.POST, path = "/login/web3", requiredLogin = false)
-
     @ApiOperation(value = "web3系统登陆", notes = "web3系统登陆")
-    @ResponseBody
     public BaseResponse<LoginResponse> loginByWeb3(@ApiParam("web3系统登陆请求") @RequestBody @Valid Web3LoginRequest request) {
         return BaseResponse.success(loginService.loginByWeb3(request));
     }
 
     @ApiDefinition(method = RequestMethod.GET, path = "/nonce", requiredLogin = false)
     @ApiOperation(value = "查询用户随机字符串", notes = "查询用户随机字符串")
-    @ResponseBody
     public BaseResponse<String> queryNonce(@RequestParam String pubAddress) {
         return BaseResponse.success(userService.getNonce(pubAddress));
     }
@@ -74,7 +69,6 @@ public class LoginController {
      */
     @ApiDefinition(method = RequestMethod.POST, path = "/logout")
     @ApiOperation(value = "系统退出登陆", notes = "系统退出登陆")
-    @ResponseBody
     public BaseResponse<Boolean> logout() {
         return BaseResponse.success(loginService.logout());
     }
@@ -86,7 +80,6 @@ public class LoginController {
      */
     @ApiDefinition(method = RequestMethod.GET, path = "/me")
     @ApiOperation(value = "系统获取当前登录用户信息", notes = "系统获取当前登录用户信息")
-    @ResponseBody
     public BaseResponse<UserDTO> me() {
         return BaseResponse.success(userService.queryById(AuthContext.me().getLoginUser().getUserId()));
     }

@@ -38,7 +38,6 @@ public class VcoinController {
      */
     @ApiDefinition(method = RequestMethod.POST, path = "/recharge")
     @ApiOperation(value = "创建Vcoin充值单", notes = "创建Vcoin充值单")
-    @ResponseBody
     public BaseResponse<VcoinRechargeOrderDTO> createRecharge(@RequestBody @Valid VcoinRechargeOrderCreateRequest request) {
         return BaseResponse.success(rechargeService.create(request));
     }
@@ -51,7 +50,6 @@ public class VcoinController {
      */
     @ApiDefinition(method = RequestMethod.PUT, path = "/recharge/pay")
     @ApiOperation(value = "支付Vcoin充值单", notes = "支付Vcoin充值单")
-    @ResponseBody
     public BaseResponse<VcoinRechargeOrderDTO> payRecharge(@RequestBody @Valid VcoinRechargeOrderPayRequest request) {
         return BaseResponse.success(rechargeService.pay(request));
     }

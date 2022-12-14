@@ -1,11 +1,14 @@
 package com.bik.web3.mall3.domain.user;
 
 import com.bik.web3.mall3.bean.user.dto.UserDTO;
+import com.bik.web3.mall3.bean.user.request.BindUserInfoRequest;
+import com.bik.web3.mall3.bean.user.request.BindWeb3AddressRequest;
 import com.bik.web3.mall3.bean.user.request.VerifyPasswordRequest;
 import com.bik.web3.mall3.bean.user.request.VerifyWeb3AddressRequest;
 import com.bik.web3.mall3.common.exception.Mall3Exception;
 import com.bik.web3.mall3.common.exception.ResultCodes;
 import com.bik.web3.mall3.common.utils.BCrypt;
+import com.bik.web3.mall3.common.utils.ObjectUtils;
 import com.bik.web3.mall3.common.utils.generator.UuidGenerator;
 import com.bik.web3.mall3.web3.Web3Operations;
 import lombok.RequiredArgsConstructor;
@@ -114,5 +117,44 @@ public class UserService {
     public void clearNonce(String web3Address) {
         String redisKey = "Web3Nonce_" + web3Address;
         redisTemplate.delete(redisKey);
+    }
+
+    /**
+     * 绑定用户信息
+     *
+     * @param request 请求
+     * @return 绑定成功后用户信息
+     */
+    @Transactional(timeout = 10, rollbackFor = Exception.class)
+    public UserDTO bindUserInfo(BindUserInfoRequest request) {
+        if (StringUtils.isNotBlank(request.getPassword())) {
+            if (!request.getPassword().equals(request.getRePassword())) {
+                throw new Mall3Exception(ResultCodes.PASSWORD_NOT_EQUAL);
+            }
+        }
+
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new Mall3Exception(ResultCodes.USER_NOT_EXIST));
+        ObjectUtils.copy(request, user, true);
+        return userRepository.save(user).toValueObject();
+    }
+
+    /**
+     * 绑定Web3钱包地址
+     *
+     * @param request 请求
+     * @return 绑定成功后用户信息
+     */
+    @Transactional(timeout = 10, rollbackFor = Exception.class)
+    public UserDTO bindWeb3Address(BindWeb3AddressRequest request) {
+        String nonce = getNonce(request.getPubAddress());
+        boolean isValid = web3Operations.validate(request.getSignature(), nonce, request.getPubAddress());
+        if (!isValid) {
+            throw new Mall3Exception(ResultCodes.INVALID_SIGNATURE);
+        }
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new Mall3Exception(ResultCodes.USER_NOT_EXIST));
+        user.setPubWeb3Addr(request.getUserPubWeb3Addr());
+        return userRepository.save(user).toValueObject();
     }
 }

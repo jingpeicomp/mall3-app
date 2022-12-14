@@ -1,9 +1,12 @@
 package com.bik.web3.mall3.domain.stock;
 
 import com.bik.web3.mall3.bean.goods.request.GoodsCreateRequest;
+import com.bik.web3.mall3.bean.stock.dto.StockDTO;
+import com.bik.web3.mall3.bean.stock.request.StockSearchRequest;
 import com.bik.web3.mall3.bean.stock.request.StockShelveRequest;
 import com.bik.web3.mall3.bean.user.dto.UserDTO;
 import com.bik.web3.mall3.common.consts.Mall3Const;
+import com.bik.web3.mall3.common.dto.PageResult;
 import com.bik.web3.mall3.common.enums.CurrencyType;
 import com.bik.web3.mall3.common.enums.SaleChannel;
 import com.bik.web3.mall3.common.exception.Mall3Exception;
@@ -15,8 +18,15 @@ import com.bik.web3.mall3.domain.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.criteria.Predicate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 库存领域服务
@@ -33,6 +43,21 @@ public class StockService {
     private final UserService userService;
 
     private final GoodsService goodsService;
+
+    /**
+     * 库存搜索请求
+     *
+     * @param request 分页搜索请求
+     * @return 分页搜索结果
+     */
+    @Transactional(timeout = 10, rollbackFor = Exception.class, readOnly = true)
+    public PageResult<StockDTO> search(StockSearchRequest request) {
+        Specification<Stock> spec = buildQuerySpecification(request);
+        request.initDefaultSort();
+        Page<StockDTO> page = stockRepository.findAll(spec, request.toSpringPageRequest())
+                .map(Stock::toValueObject);
+        return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
 
     /**
      * 商品上架
@@ -65,6 +90,31 @@ public class StockService {
         }
 
         createGoods(request, stock, brand);
+    }
+
+    /**
+     * 构造查询条件
+     *
+     * @param request 库存搜索请求
+     * @return 查询规格
+     */
+    @NotNull
+    private Specification<Stock> buildQuerySpecification(StockSearchRequest request) {
+        return (root, query, builder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (null != request.getUserId()) {
+                predicates.add(builder.equal(root.get("userId"), request.getUserId()));
+            }
+            if (null != request.getDeviceType()) {
+                predicates.add(builder.equal(root.get("deviceType"), request.getDeviceType()));
+            }
+            if (null != request.getPeriodType()) {
+                predicates.add(builder.equal(root.get("periodType"), request.getPeriodType()));
+            }
+
+            query.where(predicates.toArray(new Predicate[0]));
+            return query.getRestriction();
+        };
     }
 
     /**

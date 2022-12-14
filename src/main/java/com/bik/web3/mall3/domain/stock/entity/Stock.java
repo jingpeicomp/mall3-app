@@ -1,7 +1,9 @@
 package com.bik.web3.mall3.domain.stock.entity;
 
+import com.bik.web3.mall3.bean.stock.dto.StockDTO;
 import com.bik.web3.mall3.common.enums.DeviceType;
 import com.bik.web3.mall3.common.enums.PeriodType;
+import com.bik.web3.mall3.common.utils.ObjectUtils;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -60,4 +62,8 @@ public class Stock implements Serializable {
     @Version
     @Column(name = "version", columnDefinition = "bigint comment '版本号'")
     private Long version;
+
+    public StockDTO toValueObject() {
+        return ObjectUtils.copy(this, new StockDTO());
+    }
 }

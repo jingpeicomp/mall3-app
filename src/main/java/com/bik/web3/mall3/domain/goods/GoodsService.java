@@ -1,7 +1,7 @@
 package com.bik.web3.mall3.domain.goods;
 
-import com.bik.web3.mall3.bean.goods.request.GoodsCreateRequest;
 import com.bik.web3.mall3.bean.goods.dto.GoodsDTO;
+import com.bik.web3.mall3.bean.goods.request.GoodsCreateRequest;
 import com.bik.web3.mall3.bean.goods.request.GoodsSearchRequest;
 import com.bik.web3.mall3.common.dto.PageResult;
 import com.bik.web3.mall3.common.utils.ObjectUtils;
@@ -42,37 +42,6 @@ public class GoodsService {
     private final CardIdGenerator cardIdGenerator;
 
     /**
-     * 构造查询条件
-     *
-     * @param request 商品搜索请求
-     * @return 查询规格
-     */
-    @NotNull
-    private static Specification<Goods> buildQuerySpecification(GoodsSearchRequest request) {
-        return (root, query, builder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            if (null != request.getUserId()) {
-                predicates.add(builder.equal(root.get("userId"), request.getUserId()));
-            }
-            if (StringUtils.isNotBlank(request.getBrand())) {
-                predicates.add(builder.equal(root.get("brand"), request.getBrand()));
-            }
-            if (null != request.getDeviceType()) {
-                predicates.add(builder.equal(root.get("deviceType"), request.getDeviceType()));
-            }
-            if (null != request.getPeriodType()) {
-                predicates.add(builder.equal(root.get("periodType"), request.getPeriodType()));
-            }
-            if (null != request.getSaleChannel()) {
-                predicates.add(builder.equal(root.get("saleChannel"), request.getSaleChannel()));
-            }
-
-            query.where(predicates.toArray(new Predicate[0]));
-            return query.getRestriction();
-        };
-    }
-
-    /**
      * 创建销售商品
      *
      * @param request 商品创建请求
@@ -111,5 +80,36 @@ public class GoodsService {
         Page<GoodsDTO> page = goodsRepository.findAll(spec, request.toSpringPageRequest())
                 .map(Goods::toValueObject);
         return new PageResult<>(page.getContent(), page.getTotalElements());
+    }
+
+    /**
+     * 构造查询条件
+     *
+     * @param request 商品搜索请求
+     * @return 查询规格
+     */
+    @NotNull
+    private Specification<Goods> buildQuerySpecification(GoodsSearchRequest request) {
+        return (root, query, builder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (null != request.getUserId()) {
+                predicates.add(builder.equal(root.get("userId"), request.getUserId()));
+            }
+            if (StringUtils.isNotBlank(request.getBrand())) {
+                predicates.add(builder.equal(root.get("brand"), request.getBrand()));
+            }
+            if (null != request.getDeviceType()) {
+                predicates.add(builder.equal(root.get("deviceType"), request.getDeviceType()));
+            }
+            if (null != request.getPeriodType()) {
+                predicates.add(builder.equal(root.get("periodType"), request.getPeriodType()));
+            }
+            if (null != request.getSaleChannel()) {
+                predicates.add(builder.equal(root.get("saleChannel"), request.getSaleChannel()));
+            }
+
+            query.where(predicates.toArray(new Predicate[0]));
+            return query.getRestriction();
+        };
     }
 }

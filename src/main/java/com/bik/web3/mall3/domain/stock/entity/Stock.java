@@ -37,6 +37,12 @@ public class Stock implements Serializable {
     private String brand;
 
     /**
+     * 品牌logo
+     */
+    @Column(name = "brand_icon", nullable = false, updatable = false, columnDefinition = "varchar(128) not null comment '品牌logo'")
+    private String brandIcon;
+
+    /**
      * 周期类型
      */
     @Column(name = "period_type", nullable = false, updatable = false, columnDefinition = "tinyint not null comment '周期类型'")

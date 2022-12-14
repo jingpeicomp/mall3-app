@@ -33,6 +33,12 @@ public class StockDTO implements Serializable {
     private String brand;
 
     /**
+     * 品牌logo
+     */
+    @ApiModelProperty("品牌logo")
+    private String brandIcon;
+
+    /**
      * 周期类型
      */
     @ApiModelProperty("周期类型")

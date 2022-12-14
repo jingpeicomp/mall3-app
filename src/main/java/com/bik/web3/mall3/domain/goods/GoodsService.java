@@ -1,9 +1,13 @@
 package com.bik.web3.mall3.domain.goods;
 
 import com.bik.web3.mall3.bean.goods.dto.GoodsDTO;
+import com.bik.web3.mall3.bean.goods.dto.GoodsItemDTO;
 import com.bik.web3.mall3.bean.goods.request.GoodsCreateRequest;
 import com.bik.web3.mall3.bean.goods.request.GoodsSearchRequest;
 import com.bik.web3.mall3.common.dto.PageResult;
+import com.bik.web3.mall3.common.enums.DeviceType;
+import com.bik.web3.mall3.common.enums.PeriodType;
+import com.bik.web3.mall3.common.enums.SaleChannel;
 import com.bik.web3.mall3.common.utils.ObjectUtils;
 import com.bik.web3.mall3.common.utils.generator.CardIdGenerator;
 import com.bik.web3.mall3.domain.goods.entity.Goods;
@@ -83,6 +87,21 @@ public class GoodsService {
     }
 
     /**
+     * 查询商品下的所有附属Item
+     *
+     * @param userId  用户ID
+     * @param goodsId 商品ID
+     * @return 附属Item列表
+     */
+    @Transactional(timeout = 10, rollbackFor = Exception.class, readOnly = true)
+    public List<GoodsItemDTO> queryItem(Long userId, Long goodsId) {
+        return itemRepository.findByUserIdAndGoodsIdOrderByIdAsc(userId, goodsId)
+                .stream()
+                .map(GoodsItem::toValueObject)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * 构造查询条件
      *
      * @param request 商品搜索请求
@@ -99,13 +118,13 @@ public class GoodsService {
                 predicates.add(builder.equal(root.get("brand"), request.getBrand()));
             }
             if (null != request.getDeviceType()) {
-                predicates.add(builder.equal(root.get("deviceType"), request.getDeviceType()));
+                predicates.add(builder.equal(root.get("deviceType"), DeviceType.fromValue(request.getDeviceType())));
             }
             if (null != request.getPeriodType()) {
-                predicates.add(builder.equal(root.get("periodType"), request.getPeriodType()));
+                predicates.add(builder.equal(root.get("periodType"), PeriodType.fromValue(request.getPeriodType())));
             }
             if (null != request.getSaleChannel()) {
-                predicates.add(builder.equal(root.get("saleChannel"), request.getSaleChannel()));
+                predicates.add(builder.equal(root.get("saleChannel"), SaleChannel.fromValue(request.getSaleChannel())));
             }
 
             query.where(predicates.toArray(new Predicate[0]));

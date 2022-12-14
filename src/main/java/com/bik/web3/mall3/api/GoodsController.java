@@ -1,6 +1,8 @@
 package com.bik.web3.mall3.api;
 
+import com.bik.web3.mall3.auth.context.AuthContext;
 import com.bik.web3.mall3.bean.goods.dto.GoodsDTO;
+import com.bik.web3.mall3.bean.goods.dto.GoodsItemDTO;
 import com.bik.web3.mall3.bean.goods.request.GoodsSearchRequest;
 import com.bik.web3.mall3.common.annotation.ApiDefinition;
 import com.bik.web3.mall3.common.dto.BaseResponse;
@@ -10,11 +12,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 商品API接口
@@ -39,5 +43,16 @@ public class GoodsController {
     @ApiOperation(value = "查询上架商品", notes = "查询上架商品")
     public BaseResponse<PageResult<GoodsDTO>> query(@Valid GoodsSearchRequest request) {
         return BaseResponse.success(goodsService.search(request));
+    }
+
+    /**
+     * 查询上架商品
+     *
+     * @return 上架商品查询请求
+     */
+    @ApiDefinition(method = RequestMethod.GET, path = "/{goodsId}/item")
+    @ApiOperation(value = "查询上架商品附属卡号", notes = "查询上架商品附属卡号")
+    public BaseResponse<List<GoodsItemDTO>> queryItem(@PathVariable Long goodsId) {
+        return BaseResponse.success(goodsService.queryItem(AuthContext.me().getLoginUser().getUserId(), goodsId));
     }
 }

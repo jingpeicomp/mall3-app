@@ -28,7 +28,6 @@ public class UserDTO implements Serializable {
     @ApiModelProperty("用户名")
     private String name;
 
-
     /**
      * 品牌名
      */

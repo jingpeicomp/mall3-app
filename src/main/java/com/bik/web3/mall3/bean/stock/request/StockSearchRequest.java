@@ -22,11 +22,11 @@ public class StockSearchRequest extends PageRequest {
      * 周期类型
      */
     @ApiModelProperty("周期类型")
-    private PeriodType periodType;
+    private Integer periodType;
 
     /**
      * 设备类型
      */
     @ApiModelProperty("设备类型")
-    private DeviceType deviceType;
+    private Integer deviceType;
 }

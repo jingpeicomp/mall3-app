@@ -8,6 +8,8 @@ import com.bik.web3.mall3.bean.user.dto.UserDTO;
 import com.bik.web3.mall3.common.consts.Mall3Const;
 import com.bik.web3.mall3.common.dto.PageResult;
 import com.bik.web3.mall3.common.enums.CurrencyType;
+import com.bik.web3.mall3.common.enums.DeviceType;
+import com.bik.web3.mall3.common.enums.PeriodType;
 import com.bik.web3.mall3.common.enums.SaleChannel;
 import com.bik.web3.mall3.common.exception.Mall3Exception;
 import com.bik.web3.mall3.common.exception.ResultCodes;
@@ -106,10 +108,10 @@ public class StockService {
                 predicates.add(builder.equal(root.get("userId"), request.getUserId()));
             }
             if (null != request.getDeviceType()) {
-                predicates.add(builder.equal(root.get("deviceType"), request.getDeviceType()));
+                predicates.add(builder.equal(root.get("deviceType"), DeviceType.fromValue(request.getDeviceType())));
             }
             if (null != request.getPeriodType()) {
-                predicates.add(builder.equal(root.get("periodType"), request.getPeriodType()));
+                predicates.add(builder.equal(root.get("periodType"), PeriodType.fromValue(request.getPeriodType())));
             }
 
             query.where(predicates.toArray(new Predicate[0]));

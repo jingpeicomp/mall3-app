@@ -48,7 +48,7 @@ public class StockController {
      * @param request 商品上架请求
      * @return 上架结果
      */
-    @ApiDefinition(method = RequestMethod.POST, path = "/{stockId}")
+    @ApiDefinition(method = RequestMethod.POST, path = "/{stockId}/shelve")
     @ApiOperation(value = "销售商品上架", notes = "销售商品上架")
     public BaseResponse<Boolean> shelve(@PathVariable Long stockId, @RequestBody @Valid StockShelveRequest request) {
         request.setStockId(stockId);

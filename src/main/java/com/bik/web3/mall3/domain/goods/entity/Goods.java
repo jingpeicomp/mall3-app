@@ -81,7 +81,7 @@ public class Goods implements Serializable {
      * 货币种类
      */
     @Column(name = "currency_type", nullable = false, updatable = false, columnDefinition = "tinyint not null comment '货币种类'")
-    @Convert(converter = DeviceType.EnumConvert.class)
+    @Convert(converter = CurrencyType.EnumConvert.class)
     private CurrencyType currencyType;
 
     /**

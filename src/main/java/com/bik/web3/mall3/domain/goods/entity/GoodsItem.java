@@ -1,5 +1,7 @@
 package com.bik.web3.mall3.domain.goods.entity;
 
+import com.bik.web3.mall3.bean.goods.dto.GoodsItemDTO;
+import com.bik.web3.mall3.common.utils.ObjectUtils;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -33,4 +35,8 @@ public class GoodsItem implements Serializable {
      */
     @Column(name = "user_id", nullable = false, updatable = false, columnDefinition = "bigint not null comment '用户ID'")
     private Long userId;
+
+    public GoodsItemDTO toValueObject() {
+        return ObjectUtils.copy(this, new GoodsItemDTO());
+    }
 }

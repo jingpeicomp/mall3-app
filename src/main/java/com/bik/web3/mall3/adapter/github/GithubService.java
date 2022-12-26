@@ -2,7 +2,7 @@ package com.bik.web3.mall3.adapter.github;
 
 import cn.hutool.core.codec.Base64;
 import com.bik.web3.mall3.common.utils.ObjectUtils;
-import com.bik.web3.mall3.common.utils.generator.UuidGenerator;
+import com.bik.web3.mall3.common.utils.generator.CardIdGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -28,6 +28,8 @@ public class GithubService {
 
     private final OkHttpClient httpClient;
 
+    private final CardIdGenerator cardIdGenerator;
+
     private static final String PATH = "https://api.github.com/repos/jingpeicomp/mall3-nft-meta/contents/2022-12-26/";
 
     private static final String CDN_PATH = "https://cdn.jsdelivr.net/gh/jingpeicomp/mall3-nft-meta/2022-12-26/";
@@ -45,7 +47,29 @@ public class GithubService {
      * @return 文件url
      */
     public String uploadJson(String json) {
-        String fileName = UuidGenerator.generate() + ".json";
+        return uploadJson(json, cardIdGenerator.generate());
+    }
+
+    /**
+     * 上传JSON meta文件
+     *
+     * @param jsonMap json内容
+     * @return 文件访问URL
+     */
+    public String uploadJson(Map<String, Object> jsonMap) {
+        String json = ObjectUtils.toJson(jsonMap);
+        return uploadJson(json);
+    }
+
+    /**
+     * 上传JSON meta文件
+     *
+     * @param json   json文件内容
+     * @param fileNo 文件编号
+     * @return 文件url
+     */
+    public String uploadJson(String json, Long fileNo) {
+        String fileName = fileNo + ".json";
         String content = Base64.encode(json);
         Map<String, String> body = new HashMap<>(4);
         body.put("message", "upload web3 meta");
@@ -71,16 +95,5 @@ public class GithubService {
             log.error("Cannot upload file by github api ", e);
         }
         return "";
-    }
-
-    /**
-     * 上传JSON meta文件
-     *
-     * @param jsonMap json内容
-     * @return 文件访问URL
-     */
-    public String uploadJson(Map<String, Object> jsonMap) {
-        String json = ObjectUtils.toJson(jsonMap);
-        return uploadJson(json);
     }
 }

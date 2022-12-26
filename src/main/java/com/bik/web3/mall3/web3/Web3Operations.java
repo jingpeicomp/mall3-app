@@ -1,21 +1,28 @@
 package com.bik.web3.mall3.web3;
 
+import com.bik.web3.contracts.Mall3Goods;
+import com.bik.web3.mall3.common.exception.Mall3Exception;
+import com.bik.web3.mall3.domain.goods.entity.Goods;
+import com.bik.web3.mall3.domain.goods.entity.GoodsItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.web3j.crypto.ECDSASignature;
-import org.web3j.crypto.Hash;
-import org.web3j.crypto.Keys;
-import org.web3j.crypto.Sign;
+import org.web3j.crypto.*;
 import org.web3j.crypto.Sign.SignatureData;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.EthTransaction;
+import org.web3j.tx.gas.ContractGasProvider;
+import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.utils.Numeric;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Web3操作
@@ -30,6 +37,11 @@ public class Web3Operations {
     private static final String PERSONAL_MESSAGE_PREFIX = "\u0019Ethereum Signed Message:\n";
 
     private final Web3j web3j;
+
+    @Value("${mall3.platform.privateKey}")
+    private String platformPrivateKey;
+
+    private Credentials platformCredentials;
 
     /**
      * 对签名消息，原始消息，账号地址三项信息进行认证，判断签名是否有效
@@ -99,5 +111,34 @@ public class Web3Operations {
         }
 
         return null;
+    }
+
+    /**
+     * 部署Web3 nft智能合约
+     *
+     * @param goods            商品信息
+     * @param items            商品附属卡信息
+     * @param ownerWeb3Address 商品拥有者web3地址
+     * @param contractMetaUrl  智能合约meta url
+     */
+    public String deploy(Goods goods, List<GoodsItem> items, String ownerWeb3Address, String contractMetaUrl) {
+        List<BigInteger> itemIds = items.stream()
+                .map(item -> BigInteger.valueOf(item.getId()))
+                .collect(Collectors.toList());
+        BigInteger price = goods.getPrice().toBigInteger();
+        ContractGasProvider gasProvider = new DefaultGasProvider();
+        try {
+            Mall3Goods web3Goods = Mall3Goods.deploy(web3j, platformCredentials, gasProvider, ownerWeb3Address, itemIds, price, contractMetaUrl).send();
+            log.info("Deploy mall3 web3 goods successfully goods id {} , contract address {} ", goods.getId(), web3Goods.getContractAddress());
+            return web3Goods.getContractAddress();
+        } catch (Exception e) {
+            log.error("Deploy mall3 web3 goods error {}", goods.getId(), e);
+            throw new Mall3Exception(e);
+        }
+    }
+
+    @PostConstruct
+    public void init() {
+        platformCredentials = Credentials.create(platformPrivateKey);
     }
 }

@@ -3,6 +3,7 @@ package com.bik.web3.mall3.auth.authentication;
 import com.bik.web3.mall3.auth.jwt.JwtService;
 import com.bik.web3.mall3.auth.login.dto.LoginUser;
 import com.bik.web3.mall3.auth.session.SessionService;
+import com.bik.web3.mall3.bean.user.dto.UserDTO;
 import com.bik.web3.mall3.common.exception.Mall3Exception;
 import com.bik.web3.mall3.common.exception.ResultCodes;
 import com.bik.web3.mall3.domain.user.UserService;
@@ -43,6 +44,10 @@ public class AuthService {
         LoginUser loginUser = sessionService.get(token);
         if (null == loginUser) {
             throw new Mall3Exception(ResultCodes.EXPIRED_TOKEN);
+        }
+        UserDTO userDTO = userService.queryById(loginUser.getUserId());
+        if (null != userDTO) {
+            loginUser.setDetail(userDTO);
         }
         return loginUser;
     }

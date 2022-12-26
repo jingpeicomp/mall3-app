@@ -81,7 +81,3 @@ logging:
     root: INFO
     com.bik.web3: INFO
     org.springframework: INFO
-
-mall3:
-  web3:
-    address: https://eth-goerli.g.alchemy.com/v2/EnRJnzi90StNwxeH4LcjFRKWCLZpc2wi

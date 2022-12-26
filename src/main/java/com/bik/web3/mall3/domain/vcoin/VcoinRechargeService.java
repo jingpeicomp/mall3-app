@@ -15,6 +15,7 @@ import com.bik.web3.mall3.web3.Web3Operations;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.TaskScheduler;
@@ -33,7 +34,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Executor;
 
 /**
  * Vcoin充值领域服务
@@ -64,7 +64,7 @@ public class VcoinRechargeService {
     private final Web3Operations web3Operations;
 
     @Qualifier("asyncExecutor")
-    private final Executor asyncExecutor;
+    private final AsyncTaskExecutor asyncExecutor;
 
     private final AccountService accountService;
 

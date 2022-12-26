@@ -21,8 +21,8 @@ import java.io.Serializable;
 @Table(name = "t_goods_item")
 public class GoodsItem implements Serializable {
     @Id
-    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "varchar(32) not null comment 'ID，主键'")
-    private String id;
+    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "bigint not null comment 'ID，主键'")
+    private Long id;
 
     /**
      * 商品ID

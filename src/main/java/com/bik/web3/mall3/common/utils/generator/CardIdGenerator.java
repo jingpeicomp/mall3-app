@@ -168,6 +168,15 @@ public class CardIdGenerator implements CardIdGeneratorable {
     }
 
     /**
+     * 根据给定的系统编号生成卡号
+     *
+     * @return 16位卡号
+     */
+    public synchronized long generate() {
+        return generate("A1");
+    }
+
+    /**
      * 校验卡号是否合法
      *
      * @param shopId 店铺编号

@@ -13,6 +13,7 @@ import com.bik.web3.mall3.common.enums.PeriodType;
 import com.bik.web3.mall3.common.enums.SaleChannel;
 import com.bik.web3.mall3.common.exception.Mall3Exception;
 import com.bik.web3.mall3.common.exception.ResultCodes;
+import com.bik.web3.mall3.common.utils.ObjectUtils;
 import com.bik.web3.mall3.domain.goods.GoodsService;
 import com.bik.web3.mall3.domain.stock.entity.Stock;
 import com.bik.web3.mall3.domain.stock.repository.StockRepository;
@@ -66,7 +67,7 @@ public class StockService {
      *
      * @param request 商品上架请求
      */
-    @Transactional(timeout = 10, rollbackFor = Exception.class)
+    @Transactional(timeout = 100, rollbackFor = Exception.class)
     public void shelve(StockShelveRequest request) {
         Stock stock = stockRepository.findByIdAndUserId(request.getStockId(), request.getUserId())
                 .orElseThrow(() -> new Mall3Exception(ResultCodes.DATA_NOT_EXISTS));
@@ -142,6 +143,7 @@ public class StockService {
         goodsRequest.setSaleChannel(request.getSaleChannel());
         goodsRequest.setPrice(request.getPrice());
         goodsRequest.setCurrencyType(request.getSaleChannel() == SaleChannel.Web3 ? CurrencyType.ETH_COIN : CurrencyType.VCOIN);
+        ObjectUtils.copy(request, goodsRequest, true);
         goodsService.create(goodsRequest);
     }
 }

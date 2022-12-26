@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Data
 public class GoodsItemDTO implements Serializable {
     @ApiModelProperty("id")
-    private String id;
+    private Long id;
 
     /**
      * 商品ID

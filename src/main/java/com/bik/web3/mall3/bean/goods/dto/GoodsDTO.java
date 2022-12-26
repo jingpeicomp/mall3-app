@@ -92,6 +92,12 @@ public class GoodsDTO implements Serializable {
     private SaleChannel saleChannel;
 
     /**
+     * web3 nft智能合约地址
+     */
+    @ApiModelProperty("web3 nft智能合约地址")
+    private String contractAddress;
+
+    /**
      * 商品附属卡信息
      */
     @ApiModelProperty("商品附属卡信息")

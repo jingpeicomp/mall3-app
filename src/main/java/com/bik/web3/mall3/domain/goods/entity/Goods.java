@@ -98,6 +98,12 @@ public class Goods implements Serializable {
     private SaleChannel saleChannel;
 
     /**
+     * web3 nft智能合约地址
+     */
+    @Column(name = "contract_address", columnDefinition = "varchar(64) comment 'web3 nft智能合约地址'")
+    private String contractAddress;
+
+    /**
      * 版本号
      */
     @Version

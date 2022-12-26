@@ -92,6 +92,8 @@ public class StockService {
         }
 
         createGoods(request, stock, brand);
+        stock.setCount(stock.getCount() - request.getCount());
+        stockRepository.save(stock);
     }
 
     /**

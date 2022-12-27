@@ -137,6 +137,17 @@ public class Web3Operations {
         }
     }
 
+    /**
+     * 加载web3智能合约实例
+     *
+     * @param contractAddress web3智能合约地址
+     * @return 智能合约实例
+     */
+    public Mall3Goods load(String contractAddress) {
+        ContractGasProvider gasProvider = new DefaultGasProvider();
+        return Mall3Goods.load(contractAddress, web3j, platformCredentials, gasProvider);
+    }
+
     @PostConstruct
     public void init() {
         platformCredentials = Credentials.create(platformPrivateKey);

@@ -10,7 +10,7 @@ import java.util.List;
  * @author Mingo.Liu
  * @date 2022-12-13
  */
-public interface GoodsItemRepository extends JpaRepository<GoodsItem, String>, JpaSpecificationExecutor<GoodsItem> {
+public interface GoodsItemRepository extends JpaRepository<GoodsItem, Long>, JpaSpecificationExecutor<GoodsItem> {
     /**
      * 查询商品下所有的附属Item
      *

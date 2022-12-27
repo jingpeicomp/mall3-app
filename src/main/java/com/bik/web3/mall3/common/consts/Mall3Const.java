@@ -39,4 +39,19 @@ public interface Mall3Const {
 
         int PAY_ERROR = 3;
     }
+
+    /**
+     * 是否标志
+     */
+    interface YesOrNo {
+        /**
+         * 是
+         */
+        int YES = 1;
+
+        /**
+         * 否
+         */
+        int NO = 0;
+    }
 }

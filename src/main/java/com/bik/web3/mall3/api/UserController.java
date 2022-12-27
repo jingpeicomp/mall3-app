@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 用户API接口
@@ -54,5 +55,16 @@ public class UserController {
     @ApiOperation(value = "绑定用户信息", notes = "绑定用户信息")
     public BaseResponse<UserDTO> bindWeb3Address(@RequestBody @Valid BindWeb3AddressRequest request) {
         return BaseResponse.success(userService.bindWeb3Address(request));
+    }
+
+    /**
+     * 查询所有用户信息
+     *
+     * @return 所有用户信息
+     */
+    @ApiDefinition(method = RequestMethod.GET, path = "/all")
+    @ApiOperation(value = "查询所有用户信息", notes = "查询所有用户信息")
+    public BaseResponse<List<UserDTO>> queryAllUser() {
+        return BaseResponse.success(userService.queryAll());
     }
 }

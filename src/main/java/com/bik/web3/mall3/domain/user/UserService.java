@@ -18,6 +18,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * 用户领域服务
  *
@@ -46,6 +49,19 @@ public class UserService {
         return userRepository.findById(id)
                 .map(User::toValueObject)
                 .orElse(null);
+    }
+
+    /**
+     * 查询所有用户
+     *
+     * @return 所有用户信息
+     */
+    @Transactional(timeout = 10, rollbackFor = Exception.class, readOnly = true)
+    public List<UserDTO> queryAll() {
+        return userRepository.findAll()
+                .stream()
+                .map(User::toValueObject)
+                .collect(Collectors.toList());
     }
 
     /**

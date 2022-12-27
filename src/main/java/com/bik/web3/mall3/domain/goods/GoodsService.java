@@ -6,6 +6,7 @@ import com.bik.web3.mall3.bean.goods.dto.GoodsItemDTO;
 import com.bik.web3.mall3.bean.goods.dto.WebsGoodsItemMeta;
 import com.bik.web3.mall3.bean.goods.request.GoodsCreateRequest;
 import com.bik.web3.mall3.bean.goods.request.GoodsSearchRequest;
+import com.bik.web3.mall3.common.consts.Mall3Const;
 import com.bik.web3.mall3.common.dto.PageResult;
 import com.bik.web3.mall3.common.enums.DeviceType;
 import com.bik.web3.mall3.common.enums.PeriodType;
@@ -23,8 +24,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -33,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -57,9 +57,6 @@ public class GoodsService {
     private final GithubService githubService;
 
     private final Web3Operations web3Operations;
-
-    @Qualifier("asyncExecutor")
-    private final AsyncTaskExecutor asyncExecutor;
 
     /**
      * 创建销售商品
@@ -115,11 +112,67 @@ public class GoodsService {
      * @return 附属Item列表
      */
     @Transactional(timeout = 10, rollbackFor = Exception.class, readOnly = true)
-    public List<GoodsItemDTO> queryItem(Long userId, Long goodsId) {
+    public List<GoodsItemDTO> queryItemById(Long userId, Long goodsId) {
         return itemRepository.findByUserIdAndGoodsIdOrderByIdAsc(userId, goodsId)
                 .stream()
                 .map(GoodsItem::toValueObject)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据卡号ID查询充值卡信息
+     *
+     * @param itemId 卡号ID
+     * @return 充值卡信息
+     */
+    @Transactional(timeout = 10, rollbackFor = Exception.class, readOnly = true)
+    public Optional<GoodsItemDTO> queryItemById(Long itemId) {
+        return itemRepository.findById(itemId)
+                .map(GoodsItem::toValueObject);
+    }
+
+    /**
+     * 查询销售商品信息
+     *
+     * @param goodsId 商品ID
+     * @return 销售商品信息
+     */
+    @Transactional(timeout = 10, rollbackFor = Exception.class, readOnly = true)
+    public Optional<GoodsDTO> queryById(Long goodsId) {
+        return goodsRepository.findById(goodsId)
+                .map(Goods::toValueObject);
+    }
+
+    /**
+     * 根据ID列表查询销售商品
+     *
+     * @param goodsIds ID列表
+     * @return 销售商品
+     */
+    public List<GoodsDTO> queryByIds(List<Long> goodsIds) {
+        return goodsRepository.findAllById(goodsIds)
+                .stream()
+                .map(Goods::toValueObject)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 充值修复商品库存和附属卡状态
+     *
+     * @param goodsId 商品ID
+     * @param itemId  附属卡ID
+     */
+    @Transactional(timeout = 10, rollbackFor = Exception.class)
+    public void recharge(Long goodsId, Long itemId) {
+        Goods goods = goodsRepository.findById(goodsId)
+                .orElseThrow(() -> new Mall3Exception(ResultCodes.DATA_NOT_EXISTS));
+        goods.setCount(goods.getCount() - 1);
+        goodsRepository.save(goods);
+
+        GoodsItem item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new Mall3Exception(ResultCodes.DATA_NOT_EXISTS));
+        item.setRecharged(Mall3Const.YesOrNo.YES);
+        itemRepository.save(item);
     }
 
     /**
@@ -183,11 +236,11 @@ public class GoodsService {
      */
     private void buildNftMeta(Goods goods, GoodsItem item) {
         WebsGoodsItemMeta meta = new WebsGoodsItemMeta();
-        meta.setName(goods.getName());
-        String description = "- 品牌: " + goods.getBrand()
-                + "- 设备类型: " + goods.getDeviceType().getDisplay()
-                + "- 时长: " + goods.getPeriodType().getDisplay()
-                + "- 卡号: " + item.getId();
+        meta.setName(goods.getName() + "-" + item.getId());
+        String description = " * 品牌: " + goods.getBrand()
+                + " * 设备类型: " + goods.getDeviceType().getDisplay()
+                + " * 时长: " + goods.getPeriodType().getDisplay()
+                + " * 卡号: " + item.getId();
         meta.setDescription(description);
         meta.setExternalUrl("https://www.baidu.com");
         meta.setImage(goods.getImage());
@@ -220,10 +273,10 @@ public class GoodsService {
      */
     private String buildContractMeta(Goods goods) {
         WebsGoodsItemMeta meta = new WebsGoodsItemMeta();
-        meta.setName(goods.getName());
-        String description = "- 品牌: " + goods.getBrand()
-                + "- 设备类型: " + goods.getDeviceType().getDisplay()
-                + "- 时长: " + goods.getPeriodType().getDisplay();
+        meta.setName(goods.getBrand() + "-" + goods.getId());
+        String description = " * 品牌: " + goods.getBrand()
+                + " * 设备类型: " + goods.getDeviceType().getDisplay()
+                + " * 时长: " + goods.getPeriodType().getDisplay();
         meta.setDescription(description);
         meta.setExternalUrl("https://www.baidu.com");
         meta.setImage(goods.getImage());

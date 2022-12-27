@@ -183,4 +183,19 @@ public interface ResultCodes {
      * 上传meta元数据失败
      */
     String UPLOAD_META_FILE_ERROR = "E000034";
+
+    /**
+     * 不能使用他人充值卡充值
+     */
+    String OTHER_GOODS_ITEM = "E000035";
+
+    /**
+     * 充值卡已经售出
+     */
+    String SOLD_GOODS_ITEM = "E000036";
+
+    /**
+     * 充值卡已经被使用
+     */
+    String RECHARGED_GOODS_ITEM = "E000037";
 }

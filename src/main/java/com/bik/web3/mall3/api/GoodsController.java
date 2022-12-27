@@ -53,6 +53,6 @@ public class GoodsController {
     @ApiDefinition(method = RequestMethod.GET, path = "/{goodsId}/item")
     @ApiOperation(value = "查询上架商品附属卡号", notes = "查询上架商品附属卡号")
     public BaseResponse<List<GoodsItemDTO>> queryItem(@PathVariable Long goodsId) {
-        return BaseResponse.success(goodsService.queryItem(AuthContext.me().getLoginUser().getUserId(), goodsId));
+        return BaseResponse.success(goodsService.queryItemById(AuthContext.me().getLoginUser().getUserId(), goodsId));
     }
 }

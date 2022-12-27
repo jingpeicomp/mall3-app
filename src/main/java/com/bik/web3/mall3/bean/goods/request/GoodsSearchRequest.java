@@ -1,11 +1,9 @@
 package com.bik.web3.mall3.bean.goods.request;
 
 import com.bik.web3.mall3.common.dto.PageRequest;
-import com.bik.web3.mall3.common.enums.DeviceType;
-import com.bik.web3.mall3.common.enums.PeriodType;
-import com.bik.web3.mall3.common.enums.SaleChannel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 商品搜索请求
@@ -14,6 +12,7 @@ import lombok.Data;
  * @date 2022-12-14
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class GoodsSearchRequest extends PageRequest {
     /**
      * 品牌名

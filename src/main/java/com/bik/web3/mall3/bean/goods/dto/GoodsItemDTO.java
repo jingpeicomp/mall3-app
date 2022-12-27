@@ -27,4 +27,16 @@ public class GoodsItemDTO implements Serializable {
      */
     @ApiModelProperty("用户ID")
     private Long userId;
+
+    /**
+     * 是否已卖出,1表示卖出
+     */
+    @ApiModelProperty("是否已卖出,1表示卖出")
+    private Integer sold;
+
+    /**
+     * 是否已充值,1表示已充值
+     */
+    @ApiModelProperty("是否已充值,1表示已充值")
+    private Integer recharged;
 }

@@ -1,10 +1,13 @@
 package com.bik.web3.mall3.domain.goods;
 
+import com.bik.web3.contracts.Mall3Goods;
 import com.bik.web3.mall3.adapter.github.GithubService;
 import com.bik.web3.mall3.bean.goods.dto.GoodsDTO;
 import com.bik.web3.mall3.bean.goods.dto.GoodsItemDTO;
 import com.bik.web3.mall3.bean.goods.dto.WebsGoodsItemMeta;
 import com.bik.web3.mall3.bean.goods.request.GoodsCreateRequest;
+import com.bik.web3.mall3.bean.goods.request.GoodsItemOperateRequest;
+import com.bik.web3.mall3.bean.goods.request.GoodsItemTransferRequest;
 import com.bik.web3.mall3.bean.goods.request.GoodsSearchRequest;
 import com.bik.web3.mall3.common.consts.Mall3Const;
 import com.bik.web3.mall3.common.dto.PageResult;
@@ -30,8 +33,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -57,6 +62,8 @@ public class GoodsService {
     private final GithubService githubService;
 
     private final Web3Operations web3Operations;
+
+    private static final BigInteger GWEI_TO_WEI = BigInteger.valueOf(1000000000L);
 
     /**
      * 创建销售商品
@@ -173,6 +180,87 @@ public class GoodsService {
                 .orElseThrow(() -> new Mall3Exception(ResultCodes.DATA_NOT_EXISTS));
         item.setRecharged(Mall3Const.YesOrNo.YES);
         itemRepository.save(item);
+    }
+
+    /**
+     * 获取web3 nft owner
+     *
+     * @param request nft操作请求
+     * @return nft owner
+     */
+    public String getNftOwner(GoodsItemOperateRequest request) {
+        Goods goods = goodsRepository.findById(request.getGoodsId())
+                .orElseThrow(() -> new Mall3Exception(ResultCodes.DATA_NOT_EXISTS));
+        Mall3Goods mall3Goods = web3Operations.load(goods.getContractAddress());
+        try {
+            return mall3Goods.getItemOwner(BigInteger.valueOf(request.getItemId())).send();
+        } catch (Exception e) {
+            log.error("Get nft owner error {}", request, e);
+            throw new Mall3Exception(ResultCodes.CONTRACT_OPERATION_ERROR);
+        }
+    }
+
+    /**
+     * 转移nft
+     *
+     * @param request nft转移请求
+     */
+    public void transferNft(GoodsItemTransferRequest request) {
+        Goods goods = goodsRepository.findById(request.getGoodsId())
+                .orElseThrow(() -> new Mall3Exception(ResultCodes.DATA_NOT_EXISTS));
+        Mall3Goods mall3Goods = web3Operations.load(goods.getContractAddress());
+        try {
+            String nftOwner = mall3Goods.getItemOwner(BigInteger.valueOf(request.getItemId())).send();
+            if (!Objects.equals(nftOwner, request.getUserPubWeb3Addr())) {
+                throw new Mall3Exception(ResultCodes.OTHER_NFT);
+            }
+            mall3Goods.transfer(BigInteger.valueOf(request.getItemId()), request.getToWeb3Address()).send();
+        }catch (Mall3Exception e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Transfer nft error {} {}", request, e);
+            throw new Mall3Exception(ResultCodes.CONTRACT_OPERATION_ERROR);
+        }
+    }
+
+    /**
+     * 销毁NFT
+     *
+     * @param request nft销毁请求
+     */
+    public void destroyNft(GoodsItemOperateRequest request) {
+        Goods goods = goodsRepository.findById(request.getGoodsId())
+                .orElseThrow(() -> new Mall3Exception(ResultCodes.DATA_NOT_EXISTS));
+        Mall3Goods mall3Goods = web3Operations.load(goods.getContractAddress());
+        try {
+            String nftOwner = mall3Goods.getItemOwner(BigInteger.valueOf(request.getItemId())).send();
+            if (!Objects.equals(nftOwner, request.getUserPubWeb3Addr())) {
+                throw new Mall3Exception(ResultCodes.OTHER_NFT);
+            }
+            mall3Goods.burn(BigInteger.valueOf(request.getItemId())).send();
+        } catch (Mall3Exception e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Destroy nft owner error {}", request, e);
+            throw new Mall3Exception(ResultCodes.CONTRACT_OPERATION_ERROR);
+        }
+    }
+
+    /**
+     * 购买NFT
+     *
+     * @param request nft购买请求
+     */
+    public void buyNft(GoodsItemOperateRequest request) {
+        Goods goods = goodsRepository.findById(request.getGoodsId())
+                .orElseThrow(() -> new Mall3Exception(ResultCodes.DATA_NOT_EXISTS));
+        Mall3Goods mall3Goods = web3Operations.load(goods.getContractAddress());
+        try {
+            mall3Goods.buy(BigInteger.valueOf(request.getItemId()), goods.getPrice().toBigInteger().multiply(GWEI_TO_WEI)).send();
+        } catch (Exception e) {
+            log.error("Buy nft owner error {}", request, e);
+            throw new Mall3Exception(ResultCodes.CONTRACT_OPERATION_ERROR);
+        }
     }
 
     /**

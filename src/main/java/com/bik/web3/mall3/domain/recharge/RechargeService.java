@@ -14,6 +14,7 @@ import com.bik.web3.mall3.common.exception.ResultCodes;
 import com.bik.web3.mall3.domain.goods.GoodsService;
 import com.bik.web3.mall3.web3.Web3Operations;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RechargeService {
 
     private final GoodsService goodsService;
@@ -118,7 +120,8 @@ public class RechargeService {
 
             mall3Goods.burn(BigInteger.valueOf(request.getItemId())).send();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("Web3 recharge error {}", request, e);
+            throw new Mall3Exception(ResultCodes.CONTRACT_OPERATION_ERROR);
         }
     }
 

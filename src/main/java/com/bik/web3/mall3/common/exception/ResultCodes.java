@@ -198,4 +198,14 @@ public interface ResultCodes {
      * 充值卡已经被使用
      */
     String RECHARGED_GOODS_ITEM = "E000037";
+
+    /**
+     * 智能合约操作失败
+     */
+    String CONTRACT_OPERATION_ERROR = "E000038";
+
+    /**
+     * NFT不属于当前用户
+     */
+    String OTHER_NFT = "E000039";
 }

@@ -19,4 +19,12 @@ public interface GoodsItemRepository extends JpaRepository<GoodsItem, Long>, Jpa
      * @return 附属Item列表
      */
     List<GoodsItem> findByUserIdAndGoodsIdOrderByIdAsc(Long userId, Long goodsId);
+
+    /**
+     * 根据商品ID查询所有附属Item
+     *
+     * @param goodsId 商品ID
+     * @return 附属Item列表
+     */
+    List<GoodsItem> findByGoodsIdOrderByIdAsc(Long goodsId);
 }

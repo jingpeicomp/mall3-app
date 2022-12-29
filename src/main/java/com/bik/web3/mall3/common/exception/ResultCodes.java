@@ -208,4 +208,19 @@ public interface ResultCodes {
      * NFT不属于当前用户
      */
     String OTHER_NFT = "E000039";
+
+    /**
+     * 库存不足
+     */
+    String NOT_ENOUGH_COUNT = "E000040";
+
+    /**
+     * 不能购买自身商品
+     */
+    String CANNOT_BUY_OWN_GOODS = "E000041";
+
+    /**
+     * 账户余额不够
+     */
+    String NOT_ENOUGH_AMOUNT = "E000042";
 }

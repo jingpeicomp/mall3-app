@@ -164,7 +164,7 @@ public class GoodsService {
     }
 
     /**
-     * 充值修复商品库存和附属卡状态
+     * 充值修改商品库存和附属卡状态
      *
      * @param goodsId 商品ID
      * @param itemId  附属卡ID
@@ -180,6 +180,38 @@ public class GoodsService {
                 .orElseThrow(() -> new Mall3Exception(ResultCodes.DATA_NOT_EXISTS));
         item.setRecharged(Mall3Const.YesOrNo.YES);
         itemRepository.save(item);
+    }
+
+    /**
+     * 卖出商品
+     *
+     * @param goodsId 商品ID
+     * @param count   卖出数目
+     */
+    @Transactional(timeout = 20, rollbackFor = Exception.class)
+    public void sell(Long goodsId, Integer count) {
+        Goods goods = goodsRepository.findById(goodsId)
+                .orElseThrow(() -> new Mall3Exception(ResultCodes.DATA_NOT_EXISTS));
+        if (goods.getCount() < count) {
+            throw new Mall3Exception(ResultCodes.NOT_ENOUGH_COUNT);
+        }
+
+        goods.setCount(goods.getCount() - count);
+        goodsRepository.save(goods);
+
+        List<GoodsItem> goodsItems = itemRepository.findByGoodsIdOrderByIdAsc(goodsId);
+        List<GoodsItem> availableItems = goodsItems.stream()
+                .filter(item -> item.getSold() == Mall3Const.YesOrNo.NO && item.getRecharged() == Mall3Const.YesOrNo.NO)
+                .collect(Collectors.toList());
+        if (availableItems.size() < count) {
+            throw new Mall3Exception(ResultCodes.NOT_ENOUGH_COUNT);
+        }
+        availableItems.stream()
+                .limit(count)
+                .forEach(item -> {
+                    item.setSold(Mall3Const.YesOrNo.YES);
+                    itemRepository.save(item);
+                });
     }
 
     /**
@@ -215,7 +247,7 @@ public class GoodsService {
                 throw new Mall3Exception(ResultCodes.OTHER_NFT);
             }
             mall3Goods.transfer(BigInteger.valueOf(request.getItemId()), request.getToWeb3Address()).send();
-        }catch (Mall3Exception e) {
+        } catch (Mall3Exception e) {
             throw e;
         } catch (Exception e) {
             log.error("Transfer nft error {} {}", request, e);
@@ -273,8 +305,14 @@ public class GoodsService {
     private Specification<Goods> buildQuerySpecification(GoodsSearchRequest request) {
         return (root, query, builder) -> {
             List<Predicate> predicates = new ArrayList<>();
-            if (null != request.getUserId()) {
-                predicates.add(builder.equal(root.get("userId"), request.getUserId()));
+            if (request.isShowSeller()) {
+                if (null != request.getUserId()) {
+                    predicates.add(builder.equal(root.get("userId"), request.getUserId()));
+                }
+            } else {
+                if (null != request.getUserId()) {
+                    predicates.add(builder.notEqual(root.get("userId"), request.getUserId()));
+                }
             }
             if (StringUtils.isNotBlank(request.getBrand())) {
                 predicates.add(builder.equal(root.get("brand"), request.getBrand()));

@@ -1,5 +1,7 @@
 package com.bik.web3.mall3.common.consts;
 
+import java.math.BigDecimal;
+
 /**
  * 常量
  *
@@ -21,6 +23,8 @@ public interface Mall3Const {
      * 默认品牌图片
      */
     String DEFAULT_BRAND_IMAGE_URL = "https://s1.ax1x.com/2022/12/13/z5BlY4.png";
+
+    BigDecimal ETH2WEI = BigDecimal.valueOf(1000000000000000000L);
 
     interface RechargeOrderState {
         /**

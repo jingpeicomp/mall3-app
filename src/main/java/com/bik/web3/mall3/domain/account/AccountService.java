@@ -2,10 +2,13 @@ package com.bik.web3.mall3.domain.account;
 
 import com.bik.web3.mall3.bean.account.AccountDTO;
 import com.bik.web3.mall3.bean.vcoin.dto.VcoinRechargeOrderDTO;
+import com.bik.web3.mall3.common.exception.Mall3Exception;
+import com.bik.web3.mall3.common.exception.ResultCodes;
 import com.bik.web3.mall3.domain.account.entity.Account;
 import com.bik.web3.mall3.domain.account.entity.AccountBill;
 import com.bik.web3.mall3.domain.account.repository.AccountBillRepository;
 import com.bik.web3.mall3.domain.account.repository.AccountRepository;
+import com.bik.web3.mall3.domain.order.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,5 +62,38 @@ public class AccountService {
         repository.save(account);
         billRepository.save(bill);
         return account.toValueObject();
+    }
+
+    /**
+     * 商品交易
+     *
+     * @param order 订单
+     */
+    @Transactional(timeout = 10, rollbackFor = Exception.class)
+    public void pay(Order order) {
+        Account buyerAccount = repository.findById(order.getBuyerId())
+                .orElseGet(() -> {
+                    Account newAccount = new Account();
+                    newAccount.setUserId(order.getBuyerId());
+                    newAccount.setBalanceAmount(0L);
+                    return repository.save(newAccount);
+                });
+        if (buyerAccount.getBalanceAmount() < order.getPayAmount().longValue()) {
+            throw new Mall3Exception(ResultCodes.NOT_ENOUGH_AMOUNT);
+        }
+        AccountBill buyerBill = buyerAccount.buy(order);
+        repository.save(buyerAccount);
+        billRepository.save(buyerBill);
+
+        Account sellerAccount = repository.findById(order.getSellerId())
+                .orElseGet(() -> {
+                    Account newAccount = new Account();
+                    newAccount.setUserId(order.getSellerId());
+                    newAccount.setBalanceAmount(0L);
+                    return repository.save(newAccount);
+                });
+        AccountBill sellerBill = sellerAccount.sell(order);
+        repository.save(sellerAccount);
+        billRepository.save(sellerBill);
     }
 }

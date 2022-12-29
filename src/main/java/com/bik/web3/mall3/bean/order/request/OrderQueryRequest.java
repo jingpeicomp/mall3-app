@@ -1,23 +1,22 @@
-package com.bik.web3.mall3.bean.goods.request;
+package com.bik.web3.mall3.bean.order.request;
 
+import com.bik.web3.mall3.common.dto.BaseRequest;
 import com.bik.web3.mall3.common.dto.PageRequest;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 商品搜索请求
+ * 订单搜索请求
  *
  * @author Mingo.Liu
- * @date 2022-12-14
+ * @date 2022-12-29
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class GoodsSearchRequest extends PageRequest {
-    /**
-     * 品牌名
-     */
-    @ApiModelProperty("品牌名")
+public class OrderQueryRequest extends PageRequest {
+    private Integer state;
+
     private String brand;
 
     /**
@@ -33,13 +32,14 @@ public class GoodsSearchRequest extends PageRequest {
     private Integer deviceType;
 
     /**
-     * 销售渠道
+     * 销售途径
      */
-    @ApiModelProperty("销售渠道")
+    @ApiModelProperty("销售途径")
     private Integer saleChannel;
 
+
     /**
-     * 是不是显示自身上架商品
+     * 是否显示卖家订单
      */
-    private boolean showSeller = true;
+    private boolean showSeller = false;
 }

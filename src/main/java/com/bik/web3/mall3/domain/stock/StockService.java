@@ -2,6 +2,7 @@ package com.bik.web3.mall3.domain.stock;
 
 import com.bik.web3.mall3.bean.goods.request.GoodsCreateRequest;
 import com.bik.web3.mall3.bean.stock.dto.StockDTO;
+import com.bik.web3.mall3.bean.stock.request.StockInRequest;
 import com.bik.web3.mall3.bean.stock.request.StockSearchRequest;
 import com.bik.web3.mall3.bean.stock.request.StockShelveRequest;
 import com.bik.web3.mall3.bean.user.dto.UserDTO;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 库存领域服务
@@ -94,6 +96,51 @@ public class StockService {
 
         createGoods(request, stock, brand);
         stock.setCount(stock.getCount() - request.getCount());
+        stockRepository.save(stock);
+    }
+
+    /**
+     * 采购入库
+     *
+     * @param request 库存采购入库请求
+     */
+    @Transactional(timeout = 10, rollbackFor = Exception.class)
+    public void in(StockInRequest request) {
+        Specification<Stock> spec = (root, query, builder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (null != request.getUserId()) {
+                predicates.add(builder.equal(root.get("userId"), request.getUserId()));
+            }
+            if (null != request.getGoods().getDeviceType()) {
+                predicates.add(builder.equal(root.get("deviceType"), request.getGoods().getDeviceType()));
+            }
+            if (null != request.getGoods().getPeriodType()) {
+                predicates.add(builder.equal(root.get("periodType"), request.getGoods().getPeriodType()));
+            }
+            if (StringUtils.isBlank(request.getGoods().getBrand())) {
+                predicates.add(builder.isNull(root.get("brand")));
+            } else {
+                predicates.add(builder.equal(root.get("brand"), request.getGoods().getBrand()));
+            }
+
+            query.where(predicates.toArray(new Predicate[0]));
+            return query.getRestriction();
+        };
+
+        Optional<Stock> optional = stockRepository.findOne(spec);
+        Stock stock;
+        if (optional.isPresent()) {
+            stock = optional.get();
+            stock.setCount(stock.getCount() + request.getOrder().getCount());
+        } else {
+            stock = new Stock();
+            stock.setBrand(request.getGoods().getBrand());
+            stock.setBrandIcon(request.getGoods().getImage());
+            stock.setUserId(request.getUserId());
+            stock.setDeviceType(request.getGoods().getDeviceType());
+            stock.setPeriodType(request.getGoods().getPeriodType());
+            stock.setCount(request.getOrder().getCount());
+        }
         stockRepository.save(stock);
     }
 

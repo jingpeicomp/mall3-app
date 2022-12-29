@@ -57,8 +57,6 @@ public class VcoinRechargeService {
      */
     private static final String PLATFORM_WEB3_ADDRESS = "0xe5a70661c17ac8b012cb9a822ebab93a27c19859";
 
-    private static final BigDecimal ETH2WEI = BigDecimal.valueOf(1000000000000000000L);
-
     private final VcoinRechargeOrderRepository repository;
 
     private final Web3Operations web3Operations;
@@ -174,6 +172,7 @@ public class VcoinRechargeService {
      *
      * @param dto 支付单信息
      */
+    @SuppressWarnings("DuplicatedCode")
     private void checkPayInfo(VcoinRechargeOrderDTO dto) {
         EthTransaction ethTransaction = web3Operations.getTransaction(dto.getTxId());
         Optional<Transaction> optional = ethTransaction.getTransaction();
@@ -183,7 +182,7 @@ public class VcoinRechargeService {
             String fromPubAddr = transaction.getFrom().toLowerCase();
             String toPubAddr = transaction.getTo().toLowerCase();
             BigInteger amountInWei = transaction.getValue();
-            BigInteger payAmountInWei = dto.getPayAmount().multiply(ETH2WEI).toBigInteger();
+            BigInteger payAmountInWei = dto.getPayAmount().multiply(Mall3Const.ETH2WEI).toBigInteger();
             gasAmountInWei = transaction.getGas().multiply(transaction.getGasPrice());
             if (amountInWei.compareTo(payAmountInWei) < 0) {
                 //web交易中的金额少于应付金额
@@ -209,7 +208,7 @@ public class VcoinRechargeService {
             taskScheduler.schedule(() -> checkPayInfo(dto), Instant.ofEpochMilli(System.currentTimeMillis() + 10000));
         } else if (result.isStatusOK()) {
             log.info("VcoinRechargeOrder pay success {}", dto.getId());
-            paid(dto.getId(), BigDecimal.valueOf(gasAmountInWei.longValue()).divide(ETH2WEI));
+            paid(dto.getId(), BigDecimal.valueOf(gasAmountInWei.longValue()).divide(Mall3Const.ETH2WEI));
         } else {
             log.error("VcoinRechargeOrder pay error {}", dto.getId());
             paidError(dto.getId());

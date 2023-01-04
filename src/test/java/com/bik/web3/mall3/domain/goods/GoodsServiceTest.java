@@ -44,7 +44,7 @@ public class GoodsServiceTest {
         request.setCurrencyType(CurrencyType.VCOIN);
         request.setPrice(BigDecimal.valueOf(100));
         request.setName("白牌卡" + request.getDeviceType().getDisplay() + request.getPeriodType().getDisplay());
-//        goodsService.create(request);
+        goodsService.create(request);
 
         request.setCount(20);
         request.setDeviceType(DeviceType.SINGLE);
@@ -55,58 +55,58 @@ public class GoodsServiceTest {
         request.setName("白牌卡" + request.getDeviceType().getDisplay() + request.getPeriodType().getDisplay());
         goodsService.create(request);
 
-//        request.setCount(999);
-//        request.setDeviceType(DeviceType.HOME);
-//        request.setPeriodType(PeriodType.Month);
-//        request.setSaleChannel(SaleChannel.Web2);
-//        request.setCurrencyType(CurrencyType.VCOIN);
-//        request.setPrice(BigDecimal.valueOf(200));
-//        request.setName("白牌卡" + request.getDeviceType().getDisplay() + request.getPeriodType().getDisplay());
-//        goodsService.create(request);
-//
-//        request.setCount(20);
-//        request.setDeviceType(DeviceType.HOME);
-//        request.setPeriodType(PeriodType.Month);
-//        request.setSaleChannel(SaleChannel.Web3);
-//        request.setCurrencyType(CurrencyType.ETH_COIN);
-//        request.setPrice(BigDecimal.valueOf(0.0002));
-//        request.setName("白牌卡" + request.getDeviceType().getDisplay() + request.getPeriodType().getDisplay());
-//        goodsService.create(request);
-//
-//        request.setCount(999);
-//        request.setDeviceType(DeviceType.SINGLE);
-//        request.setPeriodType(PeriodType.YEAR);
-//        request.setSaleChannel(SaleChannel.Web2);
-//        request.setCurrencyType(CurrencyType.VCOIN);
-//        request.setPrice(BigDecimal.valueOf(100));
-//        request.setName("白牌卡" + request.getDeviceType().getDisplay() + request.getPeriodType().getDisplay());
-//        goodsService.create(request);
-//
-//        request.setCount(20);
-//        request.setDeviceType(DeviceType.SINGLE);
-//        request.setPeriodType(PeriodType.YEAR);
-//        request.setSaleChannel(SaleChannel.Web3);
-//        request.setCurrencyType(CurrencyType.ETH_COIN);
-//        request.setPrice(BigDecimal.valueOf(0.0001));
-//        request.setName("白牌卡" + request.getDeviceType().getDisplay() + request.getPeriodType().getDisplay());
-//        goodsService.create(request);
-//
-//        request.setCount(999);
-//        request.setDeviceType(DeviceType.HOME);
-//        request.setPeriodType(PeriodType.YEAR);
-//        request.setSaleChannel(SaleChannel.Web2);
-//        request.setCurrencyType(CurrencyType.VCOIN);
-//        request.setPrice(BigDecimal.valueOf(200));
-//        request.setName("白牌卡" + request.getDeviceType().getDisplay() + request.getPeriodType().getDisplay());
-//        goodsService.create(request);
-//
-//        request.setCount(20);
-//        request.setDeviceType(DeviceType.HOME);
-//        request.setPeriodType(PeriodType.YEAR);
-//        request.setSaleChannel(SaleChannel.Web3);
-//        request.setCurrencyType(CurrencyType.ETH_COIN);
-//        request.setPrice(BigDecimal.valueOf(0.0002));
-//        request.setName("白牌卡" + request.getDeviceType().getDisplay() + request.getPeriodType().getDisplay());
-//        goodsService.create(request);
+        request.setCount(999);
+        request.setDeviceType(DeviceType.HOME);
+        request.setPeriodType(PeriodType.Month);
+        request.setSaleChannel(SaleChannel.Web2);
+        request.setCurrencyType(CurrencyType.VCOIN);
+        request.setPrice(BigDecimal.valueOf(200));
+        request.setName("白牌卡" + request.getDeviceType().getDisplay() + request.getPeriodType().getDisplay());
+        goodsService.create(request);
+
+        request.setCount(20);
+        request.setDeviceType(DeviceType.HOME);
+        request.setPeriodType(PeriodType.Month);
+        request.setSaleChannel(SaleChannel.Web3);
+        request.setCurrencyType(CurrencyType.ETH_COIN);
+        request.setPrice(BigDecimal.valueOf(0.0002));
+        request.setName("白牌卡" + request.getDeviceType().getDisplay() + request.getPeriodType().getDisplay());
+        goodsService.create(request);
+
+        request.setCount(999);
+        request.setDeviceType(DeviceType.SINGLE);
+        request.setPeriodType(PeriodType.YEAR);
+        request.setSaleChannel(SaleChannel.Web2);
+        request.setCurrencyType(CurrencyType.VCOIN);
+        request.setPrice(BigDecimal.valueOf(100));
+        request.setName("白牌卡" + request.getDeviceType().getDisplay() + request.getPeriodType().getDisplay());
+        goodsService.create(request);
+
+        request.setCount(20);
+        request.setDeviceType(DeviceType.SINGLE);
+        request.setPeriodType(PeriodType.YEAR);
+        request.setSaleChannel(SaleChannel.Web3);
+        request.setCurrencyType(CurrencyType.ETH_COIN);
+        request.setPrice(BigDecimal.valueOf(0.0001));
+        request.setName("白牌卡" + request.getDeviceType().getDisplay() + request.getPeriodType().getDisplay());
+        goodsService.create(request);
+
+        request.setCount(999);
+        request.setDeviceType(DeviceType.HOME);
+        request.setPeriodType(PeriodType.YEAR);
+        request.setSaleChannel(SaleChannel.Web2);
+        request.setCurrencyType(CurrencyType.VCOIN);
+        request.setPrice(BigDecimal.valueOf(200));
+        request.setName("白牌卡" + request.getDeviceType().getDisplay() + request.getPeriodType().getDisplay());
+        goodsService.create(request);
+
+        request.setCount(20);
+        request.setDeviceType(DeviceType.HOME);
+        request.setPeriodType(PeriodType.YEAR);
+        request.setSaleChannel(SaleChannel.Web3);
+        request.setCurrencyType(CurrencyType.ETH_COIN);
+        request.setPrice(BigDecimal.valueOf(0.0002));
+        request.setName("白牌卡" + request.getDeviceType().getDisplay() + request.getPeriodType().getDisplay());
+        goodsService.create(request);
     }
 }

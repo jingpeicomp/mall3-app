@@ -1,1 +1,0 @@
-import{e,M as a}from"./index-96f101f2.js";function n(n,r){const t=e(1),u=e(r||20);return a((()=>{})),{pageNum:t,pageSize:u,handleCurrentChange:e=>{t.value=e,n()},handleSizeChange:e=>{u.value=e,n()}}}export{n as t};

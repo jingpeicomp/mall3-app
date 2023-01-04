@@ -86,12 +86,10 @@ public class StockService {
             }
             brand = user.getBrand();
 
-            if (StringUtils.isBlank(request.getGoodsImage())) {
-                if (StringUtils.isBlank(user.getBrandIcon())) {
-                    request.setGoodsImage(Mall3Const.DEFAULT_GOODS_IMAGE_URL);
-                } else {
-                    request.setGoodsImage(user.getBrandIcon());
-                }
+            if (StringUtils.isBlank(user.getBrandIcon())) {
+                request.setGoodsImage(Mall3Const.DEFAULT_GOODS_IMAGE_URL);
+            } else {
+                request.setGoodsImage(user.getBrandIcon());
             }
         }
 

@@ -81,3 +81,5 @@ logging:
     root: INFO
     com.bik.web3: INFO
     org.springframework: INFO
+  path:
+    /var/mall3-app/logs

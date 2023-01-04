@@ -5,10 +5,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.http.CacheControl;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Mall3应用主入口
@@ -43,5 +50,21 @@ public class Mall3Application {
                 HostUtils.getLocalIp(),
                 healthPort
         );
+    }
+
+    @Configuration
+    public static class Mall3WebMvcConfigurer implements WebMvcConfigurer {
+
+        @Override
+        public void addViewControllers(ViewControllerRegistry registry) {
+            registry.addViewController("/").setViewName("forward:/static/index.html");
+        }
+
+        @Override
+        public void addResourceHandlers(ResourceHandlerRegistry registry) {
+            registry.addResourceHandler("/static/**")
+                    .addResourceLocations("classpath:/web/", "classpath:/web/static/")
+                    .setCacheControl(CacheControl.maxAge(14, TimeUnit.DAYS).cachePublic());
+        }
     }
 }

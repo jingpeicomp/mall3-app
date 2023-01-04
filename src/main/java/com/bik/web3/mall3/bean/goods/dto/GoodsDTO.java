@@ -1,5 +1,6 @@
 package com.bik.web3.mall3.bean.goods.dto;
 
+import com.bik.web3.mall3.bean.user.dto.UserDTO;
 import com.bik.web3.mall3.common.enums.CurrencyType;
 import com.bik.web3.mall3.common.enums.DeviceType;
 import com.bik.web3.mall3.common.enums.PeriodType;
@@ -102,4 +103,9 @@ public class GoodsDTO implements Serializable {
      */
     @ApiModelProperty("商品附属卡信息")
     private List<GoodsItemDTO> items;
+
+    /**
+     * 用户信息
+     */
+    private UserDTO user;
 }

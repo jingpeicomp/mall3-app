@@ -52,6 +52,20 @@ public class UserService {
     }
 
     /**
+     * 根据ID列表查询用户信息
+     *
+     * @param ids 用户ID列表
+     * @return 用户信息
+     */
+    @Transactional(timeout = 10, rollbackFor = Exception.class, readOnly = true)
+    public List<UserDTO> queryById(List<Long> ids) {
+        return userRepository.findAllById(ids)
+                .stream()
+                .map(User::toValueObject)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * 查询所有用户
      *
      * @return 所有用户信息

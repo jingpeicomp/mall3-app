@@ -1,5 +1,7 @@
 package com.bik.web3.mall3.bean.order.dto;
 
+import com.bik.web3.mall3.bean.goods.dto.GoodsDTO;
+import com.bik.web3.mall3.bean.user.dto.UserDTO;
 import com.bik.web3.mall3.common.enums.DeviceType;
 import com.bik.web3.mall3.common.enums.PeriodType;
 import com.bik.web3.mall3.common.enums.SaleChannel;
@@ -125,4 +127,19 @@ public class OrderDTO implements Serializable {
      * 销售渠道
      */
     private SaleChannel saleChannel;
+
+    /**
+     * 卖家信息
+     */
+    private UserDTO seller;
+
+    /**
+     * 买家信息
+     */
+    private UserDTO buyer;
+
+    /**
+     * 商品信息
+     */
+    private GoodsDTO goods;
 }

@@ -34,13 +34,13 @@ public class Order implements Serializable {
     /**
      * 用户ID
      */
-    @Column(name = "user_id", nullable = false, updatable = false, columnDefinition = "bigint not null comment '用户ID'")
+    @Column(name = "seller_id", nullable = false, updatable = false, columnDefinition = "bigint not null comment '用户ID'")
     private Long sellerId;
 
     /**
      * 用户ID
      */
-    @Column(name = "user_id", nullable = false, updatable = false, columnDefinition = "bigint not null comment '用户ID'")
+    @Column(name = "buyer_id", nullable = false, updatable = false, columnDefinition = "bigint not null comment '用户ID'")
     private Long buyerId;
 
     /**
@@ -52,13 +52,13 @@ public class Order implements Serializable {
     /**
      * 购买数目
      */
-    @Column(name = "count", columnDefinition = "int not null comment '购买数目'")
+    @Column(name = "count", nullable = false, columnDefinition = "int not null comment '购买数目'")
     private Integer count;
 
     /**
      * 待支付金额
      */
-    @Column(name = "pay_amount", columnDefinition = "decimal(20,10) not null comment '待支付金额'")
+    @Column(name = "pay_amount", nullable = false, columnDefinition = "decimal(20,10) not null comment '待支付金额'")
     private BigDecimal payAmount;
 
     /**
@@ -71,7 +71,7 @@ public class Order implements Serializable {
      * 交易GAS（手续费）
      */
     @Column(name = "gas_amount", columnDefinition = "decimal(20,10) comment '交易GAS（手续费）'")
-    private BigDecimal gasAmount;
+    private BigDecimal gasAmount = BigDecimal.ZERO;
 
     /**
      * 以太坊交易ID
@@ -82,19 +82,19 @@ public class Order implements Serializable {
     /**
      * 以太坊收款账户地址
      */
-    @Column(name = "eth_pub_addr", columnDefinition = "varchar(64) not null comment '以太坊收款账户地址'")
+    @Column(name = "eth_pub_addr", columnDefinition = "varchar(64) comment '以太坊收款账户地址'")
     private String ethPubAddr;
 
     /**
      * 以太坊付款账户地址
      */
-    @Column(name = "pay_eth_pub_addr", columnDefinition = "varchar(64) not null comment '以太坊付款账户地址'")
+    @Column(name = "pay_eth_pub_addr", columnDefinition = "varchar(64) comment '以太坊付款账户地址'")
     private String payEthPubAddr;
 
     /**
      * 充值单状态。待支付：1，已支付：2，支付失败：3
      */
-    @Column(name = "state", columnDefinition = "tinyint not null comment '充值单状态。待支付：1，已支付：2，支付失败：3'")
+    @Column(name = "state", nullable = false, columnDefinition = "tinyint not null comment '充值单状态。待支付：1，已支付：2，支付失败：3'")
     private Integer state;
 
     /**

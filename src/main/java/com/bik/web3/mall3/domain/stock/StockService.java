@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -78,7 +79,7 @@ public class StockService {
         }
 
         String brand = stock.getBrand();
-        if (StringUtils.isBlank(brand)) {
+        if (StringUtils.isBlank(brand) || Objects.equals(brand, Mall3Const.BRAND_PLATFORM)) {
             UserDTO user = userService.queryById(request.getUserId());
             if (StringUtils.isBlank(user.getBrand())) {
                 throw new Mall3Exception(ResultCodes.NOT_BRAND);

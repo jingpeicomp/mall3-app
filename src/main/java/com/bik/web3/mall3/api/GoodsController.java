@@ -1,6 +1,5 @@
 package com.bik.web3.mall3.api;
 
-import com.bik.web3.mall3.auth.context.AuthContext;
 import com.bik.web3.mall3.bean.goods.dto.GoodsDTO;
 import com.bik.web3.mall3.bean.goods.dto.GoodsItemDTO;
 import com.bik.web3.mall3.bean.goods.request.GoodsItemOperateRequest;
@@ -52,7 +51,7 @@ public class GoodsController {
     @ApiDefinition(method = RequestMethod.GET, path = "/{goodsId}/item")
     @ApiOperation(value = "查询上架商品附属卡号", notes = "查询上架商品附属卡号")
     public BaseResponse<List<GoodsItemDTO>> queryItem(@PathVariable Long goodsId) {
-        return BaseResponse.success(goodsService.queryItemById(AuthContext.me().getLoginUser().getUserId(), goodsId));
+        return BaseResponse.success(goodsService.queryItemByGoodsId(goodsId));
     }
 
     /**

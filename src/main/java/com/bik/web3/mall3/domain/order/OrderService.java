@@ -25,6 +25,7 @@ import com.bik.web3.mall3.web3.Web3Operations;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.domain.Page;
@@ -43,9 +44,9 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 订单领域服务
@@ -87,37 +88,12 @@ public class OrderService {
      */
     @Transactional(timeout = 100, rollbackFor = Exception.class, readOnly = true)
     public PageResult<OrderDTO> query(OrderQueryRequest request) {
-        Specification<Order> spec = (root, query, builder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            if (request.isShowSeller()) {
-                predicates.add(builder.equal(root.get("sellerId"), request.getUserId()));
-            } else {
-                predicates.add(builder.equal(root.get("buyerId"), request.getUserId()));
-            }
-            if (null != request.getState()) {
-                predicates.add(builder.equal(root.get("state"), request.getState()));
-            }
-            if (null != request.getDeviceType()) {
-                predicates.add(builder.equal(root.get("deviceType"), DeviceType.fromValue(request.getDeviceType())));
-            }
-            if (null != request.getPeriodType()) {
-                predicates.add(builder.equal(root.get("periodType"), PeriodType.fromValue(request.getPeriodType())));
-            }
-            if (null != request.getSaleChannel()) {
-                predicates.add(builder.equal(root.get("saleChannel"), SaleChannel.fromValue(request.getSaleChannel())));
-            }
-
-            if (StringUtils.isNotBlank(request.getBrand())) {
-                predicates.add(builder.equal(root.get("brand"), request.getBrand()));
-            }
-
-            query.where(predicates.toArray(new Predicate[0]));
-            return query.getRestriction();
-        };
-
+        Specification<Order> spec = buildQuerySpec(request);
         request.initDefaultSort();
         Page<OrderDTO> page = orderRepository.findAll(spec, request.toSpringPageRequest())
                 .map(Order::toValueObject);
+
+        fillUserInfo(page);
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
 
@@ -163,7 +139,9 @@ public class OrderService {
             stockInRequest.setGoods(goods);
             stockService.in(stockInRequest);
 
-            asyncExecutor.execute(() -> checkPayInfo(order.toValueObject()));
+            OrderDTO dto = order.toValueObject();
+            dto.setGoods(goods.toValueObject());
+            asyncExecutor.execute(() -> checkPayInfo(dto));
         }
         return order.toValueObject();
     }
@@ -233,21 +211,22 @@ public class OrderService {
     private void checkPayInfo(OrderDTO dto) {
         EthTransaction ethTransaction = web3Operations.getTransaction(dto.getTxId());
         Optional<Transaction> optional = ethTransaction.getTransaction();
-        BigInteger gasAmountInWei = BigInteger.valueOf(0);
+        BigDecimal gasAmountInWei = BigDecimal.valueOf(0);
         if (optional.isPresent()) {
             Transaction transaction = optional.get();
             String fromPubAddr = transaction.getFrom().toLowerCase();
             String toPubAddr = transaction.getTo().toLowerCase();
             BigInteger amountInWei = transaction.getValue();
             BigInteger payAmountInWei = dto.getPayAmount().multiply(Mall3Const.ETH2WEI).toBigInteger();
-            gasAmountInWei = transaction.getGas().multiply(transaction.getGasPrice());
+            gasAmountInWei = BigDecimal.valueOf(transaction.getGas().multiply(transaction.getGasPrice()).longValue())
+                    .setScale(10, RoundingMode.HALF_UP);
             if (amountInWei.compareTo(payAmountInWei) < 0) {
                 //web交易中的金额少于应付金额
                 log.error("Transaction amount is invalid {} {} {} {}", amountInWei, payAmountInWei,
                         ObjectUtils.toJson(transaction), ObjectUtils.toJson(dto));
                 return;
             }
-            if (!fromPubAddr.equals(dto.getPayEthPubAddr()) || !toPubAddr.equals(dto.getEthPubAddr())) {
+            if (!toPubAddr.equalsIgnoreCase(dto.getGoods().getContractAddress())) {
                 log.error("Transaction address is invalid {} {}",
                         ObjectUtils.toJson(transaction), ObjectUtils.toJson(dto));
                 return;
@@ -264,11 +243,11 @@ public class OrderService {
             log.warn("Cannot get transaction receipt, wait 10s for next operation");
             taskScheduler.schedule(() -> checkPayInfo(dto), Instant.ofEpochMilli(System.currentTimeMillis() + 10000));
         } else if (result.isStatusOK()) {
-            log.info("VcoinRechargeOrder pay success {}", dto.getId());
-            paid(dto.getId(), BigDecimal.valueOf(gasAmountInWei.longValue()).divide(Mall3Const.ETH2WEI, RoundingMode.HALF_UP));
+            log.info("OrderService pay success {}", dto.getId());
+            paid(dto.getId(), gasAmountInWei.divide(Mall3Const.ETH2WEI, RoundingMode.HALF_UP));
         } else {
-            log.error("VcoinRechargeOrder pay error {}", dto.getId());
-            paidError(dto.getId());
+            log.error("OrderService pay error {}", dto.getId());
+            paidError(dto.getId(), gasAmountInWei.divide(Mall3Const.ETH2WEI, RoundingMode.HALF_UP));
         }
     }
 
@@ -297,14 +276,75 @@ public class OrderService {
      * @param id 充值单ID
      */
     @Transactional(timeout = 10, rollbackFor = Exception.class)
-    public void paidError(Long id) {
+    public void paidError(Long id, BigDecimal gasAmount) {
         Order order = orderRepository.findById(id)
                 .orElse(null);
         if (null != order) {
             order.setState(Mall3Const.RechargeOrderState.PAY_ERROR);
             order.setPayTime(LocalDateTime.now());
+            order.setGasAmount(gasAmount);
             orderRepository.save(order);
         }
     }
 
+    /**
+     * 构造查询条件
+     *
+     * @param request 查询请求
+     * @return 查询规格
+     */
+    @NotNull
+    private Specification<Order> buildQuerySpec(OrderQueryRequest request) {
+        return (root, query, builder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (request.isShowSeller()) {
+                predicates.add(builder.equal(root.get("sellerId"), request.getUserId()));
+            } else {
+                predicates.add(builder.equal(root.get("buyerId"), request.getUserId()));
+            }
+            if (null != request.getState()) {
+                predicates.add(builder.equal(root.get("state"), request.getState()));
+            }
+            if (null != request.getDeviceType()) {
+                predicates.add(builder.equal(root.get("deviceType"), DeviceType.fromValue(request.getDeviceType())));
+            }
+            if (null != request.getPeriodType()) {
+                predicates.add(builder.equal(root.get("periodType"), PeriodType.fromValue(request.getPeriodType())));
+            }
+            if (null != request.getSaleChannel()) {
+                predicates.add(builder.equal(root.get("saleChannel"), SaleChannel.fromValue(request.getSaleChannel())));
+            }
+
+            if (StringUtils.isNotBlank(request.getBrand())) {
+                predicates.add(builder.equal(root.get("brand"), request.getBrand()));
+            }
+
+            query.where(predicates.toArray(new Predicate[0]));
+            return query.getRestriction();
+        };
+    }
+
+    /**
+     * 填充用户信息
+     *
+     * @param page 订单分页信息
+     */
+    private void fillUserInfo(Page<OrderDTO> page) {
+        List<Long> userIds = page.getContent()
+                .stream()
+                .flatMap(order -> Stream.of(order.getBuyerId(), order.getSellerId()))
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Long, UserDTO> userById = userService.queryById(userIds)
+                .stream()
+                .collect(Collectors.toMap(UserDTO::getId, user -> user));
+        page.getContent().forEach(order -> {
+            if (userById.containsKey(order.getSellerId())) {
+                order.setSeller(userById.get(order.getSellerId()));
+            }
+            if (userById.containsKey(order.getBuyerId())) {
+                order.setBuyer(userById.get(order.getBuyerId()));
+            }
+        });
+    }
 }

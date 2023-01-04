@@ -1,6 +1,7 @@
 package com.bik.web3.mall3.web3;
 
 import com.bik.web3.contracts.Mall3Goods;
+import com.bik.web3.mall3.common.consts.Mall3Const;
 import com.bik.web3.mall3.common.exception.Mall3Exception;
 import com.bik.web3.mall3.domain.goods.entity.Goods;
 import com.bik.web3.mall3.domain.goods.entity.GoodsItem;
@@ -19,6 +20,7 @@ import org.web3j.utils.Numeric;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -125,7 +127,7 @@ public class Web3Operations {
         List<BigInteger> itemIds = items.stream()
                 .map(item -> BigInteger.valueOf(item.getId()))
                 .collect(Collectors.toList());
-        BigInteger price = goods.getPrice().toBigInteger();
+        BigInteger price = goods.getPrice().multiply(BigDecimal.valueOf(1000000000)).toBigInteger();
         ContractGasProvider gasProvider = new DefaultGasProvider();
         try {
             Mall3Goods web3Goods = Mall3Goods.deploy(web3j, platformCredentials, gasProvider, ownerWeb3Address, itemIds, price, contractMetaUrl).send();

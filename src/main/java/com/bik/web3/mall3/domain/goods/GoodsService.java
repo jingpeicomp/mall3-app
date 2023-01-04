@@ -9,6 +9,7 @@ import com.bik.web3.mall3.bean.goods.request.GoodsCreateRequest;
 import com.bik.web3.mall3.bean.goods.request.GoodsItemOperateRequest;
 import com.bik.web3.mall3.bean.goods.request.GoodsItemTransferRequest;
 import com.bik.web3.mall3.bean.goods.request.GoodsSearchRequest;
+import com.bik.web3.mall3.bean.user.dto.UserDTO;
 import com.bik.web3.mall3.common.consts.Mall3Const;
 import com.bik.web3.mall3.common.dto.PageResult;
 import com.bik.web3.mall3.common.enums.DeviceType;
@@ -22,6 +23,7 @@ import com.bik.web3.mall3.domain.goods.entity.Goods;
 import com.bik.web3.mall3.domain.goods.entity.GoodsItem;
 import com.bik.web3.mall3.domain.goods.repository.GoodsItemRepository;
 import com.bik.web3.mall3.domain.goods.repository.GoodsRepository;
+import com.bik.web3.mall3.domain.user.UserService;
 import com.bik.web3.mall3.web3.Web3Operations;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,10 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -62,6 +61,8 @@ public class GoodsService {
     private final GithubService githubService;
 
     private final Web3Operations web3Operations;
+
+    private final UserService userService;
 
     private static final BigInteger GWEI_TO_WEI = BigInteger.valueOf(1000000000L);
 
@@ -108,19 +109,21 @@ public class GoodsService {
         request.initDefaultSort();
         Page<GoodsDTO> page = goodsRepository.findAll(spec, request.toSpringPageRequest())
                 .map(Goods::toValueObject);
+        if (!request.isShowSeller()) {
+            fillUserInfo(page);
+        }
         return new PageResult<>(page.getContent(), page.getTotalElements());
     }
 
     /**
      * 查询商品下的所有附属Item
      *
-     * @param userId  用户ID
      * @param goodsId 商品ID
      * @return 附属Item列表
      */
     @Transactional(timeout = 10, rollbackFor = Exception.class, readOnly = true)
-    public List<GoodsItemDTO> queryItemById(Long userId, Long goodsId) {
-        return itemRepository.findByUserIdAndGoodsIdOrderByIdAsc(userId, goodsId)
+    public List<GoodsItemDTO> queryItemByGoodsId(Long goodsId) {
+        return itemRepository.findByGoodsIdOrderByIdAsc(goodsId)
                 .stream()
                 .map(GoodsItem::toValueObject)
                 .collect(Collectors.toList());
@@ -407,5 +410,26 @@ public class GoodsService {
         meta.setExternalUrl("https://www.baidu.com");
         meta.setImage(goods.getImage());
         return githubService.uploadJson(ObjectUtils.toJson(meta));
+    }
+
+    /**
+     * 填充用户信息
+     *
+     * @param page 商品分页信息
+     */
+    private void fillUserInfo(Page<GoodsDTO> page) {
+        List<Long> userIds = page.getContent()
+                .stream()
+                .map(GoodsDTO::getUserId)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Long, UserDTO> userById = userService.queryById(userIds)
+                .stream()
+                .collect(Collectors.toMap(UserDTO::getId, user -> user));
+        page.getContent().forEach(goods -> {
+            if (userById.containsKey(goods.getUserId())) {
+                goods.setUser(userById.get(goods.getUserId()));
+            }
+        });
     }
 }
